@@ -12,11 +12,12 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 const navLinks = [
-  { name: 'Home', href: '#home' },
-  { name: 'Browse Menu', href: '#menu' },
-  { name: 'Pizzerias', href: '#pizzerias' },
+  { name: 'Home', href: '/' },
+  { name: 'Browse Menu', href: '/menu' },
+  { name: 'Pizzerias', href: '/pizzerias' },
 ];
 
 const Navbar: React.FC = () => {
@@ -34,8 +35,8 @@ const Navbar: React.FC = () => {
         {/* Floating Curved Bar Container */}
         <div className="flex items-center justify-between h-16 sm:h-18 px-4 sm:px-6 rounded-[1.75rem] lg:rounded-full bg-[#FFF8F3]/95 backdrop-blur-md border border-orange-200/80 shadow-lg shadow-orange-950/5">
           {/* Left: Brand Logo */}
-          <a
-            href="#home"
+          <Link
+            href="/"
             onClick={() => setActiveLink('Home')}
             className="flex items-center gap-3 group focus:outline-none shrink-0"
           >
@@ -56,14 +57,14 @@ const Navbar: React.FC = () => {
                 Artisan Pizza Delivery
               </span>
             </div>
-          </a>
+          </Link>
 
           {/* Center: Desktop Nav with Gliding Pill */}
           <nav className="hidden md:flex items-center gap-1.5 bg-orange-100/50 p-1.5 rounded-full border border-orange-200/50">
             {navLinks.map((link) => {
               const isActive = activeLink === link.name;
               return (
-                <a
+                <Link
                   key={link.name}
                   href={link.href}
                   onClick={() => setActiveLink(link.name)}
@@ -85,33 +86,33 @@ const Navbar: React.FC = () => {
                     />
                   )}
                   {link.name}
-                </a>
+                </Link>
               );
             })}
           </nav>
 
           {/* Right: Desktop Auth Actions */}
           <div className="hidden md:flex items-center gap-2.5 shrink-0">
-            <a
-              href="#signin"
+            <Link
+              href="/signIn"
               className={cn(
                 buttonVariants({ variant: 'ghost' }),
                 'text-sm font-semibold text-stone-700 hover:text-[#dc2626] hover:bg-orange-100/60 rounded-full px-4 h-10'
               )}
             >
               Sign In
-            </a>
+            </Link>
 
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-              <a
-                href="#signup"
+              <Link
+                href="/signup"
                 className={cn(
                   buttonVariants(),
                   'rounded-full bg-[#dc2626] hover:bg-[#b91c1c] text-white text-sm font-semibold px-6 h-10 shadow-sm hover:shadow-md hover:shadow-red-600/20 transition-all'
                 )}
               >
                 Sign Up
-              </a>
+              </Link>
             </motion.div>
           </div>
 
@@ -175,8 +176,8 @@ const Navbar: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col gap-3 pt-6 border-t border-orange-200/70">
-                  <a
-                    href="#signin"
+                  <Link
+                    href="/signIn"
                     onClick={() => setIsOpen(false)}
                     className={cn(
                       buttonVariants({ variant: 'outline' }),
@@ -184,9 +185,9 @@ const Navbar: React.FC = () => {
                     )}
                   >
                     Sign In
-                  </a>
-                  <a
-                    href="#signup"
+                  </Link>
+                  <Link
+                    href="/signup"
                     onClick={() => setIsOpen(false)}
                     className={cn(
                       buttonVariants(),
@@ -194,7 +195,7 @@ const Navbar: React.FC = () => {
                     )}
                   >
                     Sign Up
-                  </a>
+                  </Link>
                 </div>
               </SheetContent>
             </Sheet>
