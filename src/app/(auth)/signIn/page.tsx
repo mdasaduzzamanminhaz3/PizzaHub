@@ -2,7 +2,9 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Pizza, Eye, EyeOff } from "lucide-react";
+import { FcGoogle } from "react-icons/fc";
 import {
   Card,
   CardContent,
@@ -15,25 +17,55 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { FcGoogle } from "react-icons/fc";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
 
 export default function SignInPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!email.trim() || !password.trim()) {
-      setError("Please enter both email and password.");
+    setError("");
+
+    const formData = new FormData(e.currentTarget);
+    const emailValue = ((formData.get("email") as string) || email).trim();
+    const passwordValue = (formData.get("password") as string) || password;
+
+    if (!emailValue || !passwordValue) {
+      setError("Please enter both your email and password.");
       return;
     }
-    setError("");
-    setLoading(true);
-    // Connect auth logic here
-    setTimeout(() => setLoading(false), 600);
+
+    try {
+      setLoading(true);
+      const { data, error: authError } = await authClient.signIn.email({
+        email: emailValue,
+        password: passwordValue,
+      });
+
+      if (authError) {
+        setError(authError.message || "Invalid email or password.");
+        setLoading(false);
+        return;
+      }
+
+      if (data) {
+        toast.success("Welcome back to PizzaHub!");
+      }
+
+      setLoading(false);
+      router.refresh();
+      router.push("/");
+    } catch (err) {
+      console.error(err);
+      setError("An unexpected error occurred while signing in.");
+      setLoading(false);
+    }
   };
 
   return (
@@ -60,12 +92,16 @@ export default function SignInPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-xs font-bold uppercase text-stone-700">
+              <Label
+                htmlFor="email"
+                className="text-xs font-bold uppercase text-stone-700"
+              >
                 Email
               </Label>
               <Input
                 id="email"
                 type="email"
+                name="email"
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => {
@@ -78,7 +114,10 @@ export default function SignInPage() {
 
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-xs font-bold uppercase text-stone-700">
+                <Label
+                  htmlFor="password"
+                  className="text-xs font-bold uppercase text-stone-700"
+                >
                   Password
                 </Label>
                 <Link
@@ -92,6 +131,7 @@ export default function SignInPage() {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
+                  name="password"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => {
@@ -106,7 +146,11 @@ export default function SignInPage() {
                   aria-label="Toggle password visibility"
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 cursor-pointer"
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </button>
               </div>
             </div>
@@ -132,14 +176,17 @@ export default function SignInPage() {
             onClick={() => console.log("Google Sign In")}
             className="w-full h-11 rounded-xl border-orange-200/80 bg-white hover:bg-[#FAF7F2] text-stone-800 font-bold cursor-pointer"
           >
-           <FcGoogle /> Continue with Google
+            <FcGoogle /> Continue with Google
           </Button>
         </CardContent>
 
         <CardFooter className="justify-center pb-7 pt-2">
           <p className="text-sm text-stone-500">
             Don&apos;t have an account?{" "}
-            <Link href="/signup" className="font-bold text-[#dc2626] hover:underline">
+            <Link
+              href="/signup"
+              className="font-bold text-[#dc2626] hover:underline"
+            >
               Sign Up
             </Link>
           </p>
