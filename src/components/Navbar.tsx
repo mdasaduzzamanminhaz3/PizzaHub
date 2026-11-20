@@ -33,6 +33,7 @@ const navLinks = [
   { name: "Pizzerias", href: "/pizzerias" },
 ];
 
+
 export default function Navbar() {
   const router = useRouter();
   const { data: session, isPending } = useSession();
@@ -141,7 +142,7 @@ export default function Navbar() {
   <DropdownMenuGroup>
     <DropdownMenuLabel className="px-2.5 py-2 font-normal">
       <div className="flex items-center gap-2.5">
-        <Avatar className="h-8 w-8 shrink-0">
+        <Avatar className="h-12 w-12 shrink-0">
           <AvatarImage src={user.image || ""} alt={user.name || "User"} />
           <AvatarFallback className="bg-[#dc2626] text-white text-xs font-bold">
             {user.name?.charAt(0).toUpperCase() || "U"}
@@ -164,7 +165,7 @@ export default function Navbar() {
   <DropdownMenuItem render={<Link href="/dashboard" className="cursor-pointer rounded-xl" />}>
     Dashboard
   </DropdownMenuItem>
-  <DropdownMenuItem render={<Link href="/profile/settings" className="cursor-pointer rounded-xl" />}>
+  <DropdownMenuItem render={<Link href={`dashboard/${user.role}/settings`} className="cursor-pointer rounded-xl" />}>
     Profile Settings
   </DropdownMenuItem>
 
@@ -284,7 +285,7 @@ export default function Navbar() {
                           Dashboard
                         </Link>
                         <Link
-                          href="/profile/settings"
+                          href={`dashboard/${user.role}/settings`}
                           onClick={() => setIsOpen(false)}
                           className="px-4 py-3 rounded-2xl text-base font-semibold text-stone-700 hover:bg-orange-100/50"
                         >

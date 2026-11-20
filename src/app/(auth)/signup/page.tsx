@@ -304,7 +304,9 @@ export default function SignUpPage() {
                     <Image
                       src={avatarPreview}
                       alt="Avatar preview"
-                      className="h-10 w-10 rounded-full object-cover ring-2 ring-orange-200"
+                      height={40}
+                      width={40}
+                      className="rounded-full object-cover ring-2 ring-orange-200"
                     />
                     <button
                       type="button"
