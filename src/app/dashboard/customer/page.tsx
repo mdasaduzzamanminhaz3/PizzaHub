@@ -6,7 +6,7 @@ import { auth } from "@/lib/auth";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import WeeklyCravingsChart from "@/app/components/WeeklyCravingsChart";
+import WeeklyCravingsChart from "@/app/components/customer/WeeklyCravingsChart";
 
 interface StatCardItem {
   label: string;

@@ -7,7 +7,7 @@ import { Pizza } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import PizzaOrderCard, { PizzaOrderItem } from "@/app/components/PizzaOrderCard";
+import PizzaOrderCard, { PizzaOrderItem } from "@/app/components/customer/PizzaOrderCard";
 
 const initialOrders: PizzaOrderItem[] = [
   {
