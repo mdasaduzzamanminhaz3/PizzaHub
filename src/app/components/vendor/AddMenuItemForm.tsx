@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { createMenuItem } from "@/lib/actions/menuItems";
+import { createMenuItem, getCurrentVendor } from "@/lib/actions/menuItems";
 
 const categories = [
   "Classic Pizzas",
@@ -86,25 +86,30 @@ export default function AddMenuItemForm() {
   };
 
 const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const formData = new FormData(e.currentTarget);
-    const rawData = Object.fromEntries(formData.entries());
+  const form = e.currentTarget;
+  const formData = new FormData(form);
+  const rawData = Object.fromEntries(formData.entries());
 
-    const name = String(rawData.name || "").trim();
-    const description = String(rawData.description || "").trim();
-    const price = Number(rawData.price);
-    const image = uploadedImageUrl || imagePreview || "";
+  const name = String(rawData.name || "").trim();
+  const description = String(rawData.description || "").trim();
+  const price = Number(rawData.price);
+  const image = uploadedImageUrl || imagePreview || "";
 
-    if (!name || !price || !description) {
-      toast.error("Please fill out all required fields.");
-      return;
-    }
+  if (!name || !price || !description) {
+    toast.error("Please fill out all required fields.");
+    return;
+  }
 
-    if (!image) {
-      toast.error("Please upload a pizza photo first.");
-      return;
-    }
+  if (!image) {
+    toast.error("Please upload a pizza photo first.");
+    return;
+  }
+
+  try {
+    setSubmitting(true);
+    const { vendorId, vendorName } = await getCurrentVendor();
 
     const payload = {
       ...rawData,
@@ -112,33 +117,33 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       description,
       price,
       image,
+      vendorId,
+      vendorName,
       status: "Pending",
       isActive: true,
       isFeatured: false,
       createdAt: new Date(),
     };
 
-    try {
-      setSubmitting(true);
-      const result = await createMenuItem(payload);
+    const result = await createMenuItem(payload);
 
-      if (result?.acknowledged) {
-        toast.success("Menu item submitted for Admin review!");
-        formRef.current?.reset();
-        handleRemoveImage();
-      } else {
-        toast.error("Failed to save menu item.");
-      }
-    } catch (error) {
-      console.error("Create menu item error:", error);
-      toast.error("Something went wrong while submitting.");
-    } finally {
-      setSubmitting(false);
+    if (result?.acknowledged) {
+      toast.success("Menu item submitted for Admin review!");
+      form.reset();
+      handleRemoveImage();
+    } else {
+      toast.error("Failed to save menu item.");
     }
-  };
+  } catch (error) {
+    console.error("Create menu item error:", error);
+    toast.error("Something went wrong while submitting.");
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-5">
       {/* Row 1: Item Name & Category */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-1.5">
