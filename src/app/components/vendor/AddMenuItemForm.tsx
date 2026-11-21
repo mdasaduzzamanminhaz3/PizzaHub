@@ -6,15 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-
-export interface NewMenuItemPayload {
-  name: string;
-  category: string;
-  price: number;
-  location: string;
-  description: string;
-  imageUrl: string;
-}
+import { createMenuItem } from "@/lib/actions/menuItems";
 
 const categories = [
   "Classic Pizzas",
@@ -34,22 +26,14 @@ const locations = [
   "Bashundhara R/A",
 ];
 
-interface AddMenuItemFormProps {
-  onSubmitItem?: (item: NewMenuItemPayload) => void;
-}
-
-export default function AddMenuItemForm({ onSubmitItem }: AddMenuItemFormProps) {
+export default function AddMenuItemForm() {
+  const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState(categories[0]);
-  const [price, setPrice] = useState("");
-  const [location, setLocation] = useState(locations[0]);
-  const [description, setDescription] = useState("");
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -65,7 +49,6 @@ export default function AddMenuItemForm({ onSubmitItem }: AddMenuItemFormProps) 
 
       const apiKey = process.env.NEXT_PUBLIC_IMAGEBB_API_KEY;
       if (!apiKey) {
-        // API key না থাকলে প্রিভিউ রেখে লোকাল URL সেট করবে যাতে UI টেস্ট করা যায়
         setUploadedImageUrl(localUrl);
         toast.info("Preview ready (ImgBB API key will upload on live env).");
         setUploadingImage(false);
@@ -102,68 +85,84 @@ export default function AddMenuItemForm({ onSubmitItem }: AddMenuItemFormProps) 
     }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!name.trim() || !price || !description.trim()) {
+    const formData = new FormData(e.currentTarget);
+    const rawData = Object.fromEntries(formData.entries());
+
+    const name = String(rawData.name || "").trim();
+    const description = String(rawData.description || "").trim();
+    const price = Number(rawData.price);
+    const image = uploadedImageUrl || imagePreview || "";
+
+    if (!name || !price || !description) {
       toast.error("Please fill out all required fields.");
       return;
     }
 
-    if (!uploadedImageUrl && !imagePreview) {
+    if (!image) {
       toast.error("Please upload a pizza photo first.");
       return;
     }
 
-    onSubmitItem?.({
-      name: name.trim(),
-      category,
-      price: parseFloat(price),
-      location,
-      description: description.trim(),
-      imageUrl: uploadedImageUrl || imagePreview || "",
-    });
+    const payload = {
+      ...rawData,
+      name,
+      description,
+      price,
+      image,
+      status: "Pending",
+      isActive: true,
+      isFeatured: false,
+      createdAt: new Date(),
+    };
 
-    toast.success("Menu item submitted for Admin review!");
-    setName("");
-    setPrice("");
-    setDescription("");
-    handleRemoveImage();
+    try {
+      setSubmitting(true);
+      const result = await createMenuItem(payload);
+
+      if (result?.acknowledged) {
+        toast.success("Menu item submitted for Admin review!");
+        formRef.current?.reset();
+        handleRemoveImage();
+      } else {
+        toast.error("Failed to save menu item.");
+      }
+    } catch (error) {
+      console.error("Create menu item error:", error);
+      toast.error("Something went wrong while submitting.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
       {/* Row 1: Item Name & Category */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <Label
-            htmlFor="itemName"
-            className="text-xs font-bold text-stone-800"
-          >
+          <Label htmlFor="itemName" className="text-xs font-bold text-stone-800">
             Item Name <span className="text-[#dc2626]">*</span>
           </Label>
           <Input
             id="itemName"
+            name="name"
             type="text"
             required
             placeholder="e.g., Calabrian Honey Soppressata"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
             className="h-11 rounded-2xl bg-[#FAF7F2]/60 border-orange-200/80 focus-visible:border-[#dc2626]"
           />
         </div>
 
         <div className="space-y-1.5">
-          <Label
-            htmlFor="category"
-            className="text-xs font-bold text-stone-800"
-          >
+          <Label htmlFor="category" className="text-xs font-bold text-stone-800">
             Category <span className="text-[#dc2626]">*</span>
           </Label>
           <select
             id="category"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            name="category"
+            defaultValue={categories[0]}
             className="h-11 w-full rounded-2xl border border-orange-200/80 bg-[#FAF7F2]/60 px-3.5 text-sm font-medium text-stone-900 outline-none focus:border-[#dc2626]"
           >
             {categories.map((cat) => (
@@ -183,28 +182,24 @@ export default function AddMenuItemForm({ onSubmitItem }: AddMenuItemFormProps) 
           </Label>
           <Input
             id="price"
+            name="price"
             type="number"
             step="0.01"
             min="0"
             required
             placeholder="19.50"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
             className="h-11 rounded-2xl bg-[#FAF7F2]/60 border-orange-200/80 focus-visible:border-[#dc2626]"
           />
         </div>
 
         <div className="space-y-1.5">
-          <Label
-            htmlFor="location"
-            className="text-xs font-bold text-stone-800"
-          >
+          <Label htmlFor="location" className="text-xs font-bold text-stone-800">
             Restaurant Area / Location <span className="text-[#dc2626]">*</span>
           </Label>
           <select
             id="location"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
+            name="location"
+            defaultValue={locations[0]}
             className="h-11 w-full rounded-2xl border border-orange-200/80 bg-[#FAF7F2]/60 px-3.5 text-sm font-medium text-stone-900 outline-none focus:border-[#dc2626]"
           >
             {locations.map((loc) => (
@@ -218,19 +213,15 @@ export default function AddMenuItemForm({ onSubmitItem }: AddMenuItemFormProps) 
 
       {/* Row 3: Description */}
       <div className="space-y-1.5">
-        <Label
-          htmlFor="description"
-          className="text-xs font-bold text-stone-800"
-        >
+        <Label htmlFor="description" className="text-xs font-bold text-stone-800">
           Description <span className="text-[#dc2626]">*</span>
         </Label>
         <textarea
           id="description"
+          name="description"
           rows={3}
           required
           placeholder="Describe dough fermentation, cheese blend, and toppings..."
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
           className="w-full rounded-2xl border border-orange-200/80 bg-[#FAF7F2]/60 p-3.5 text-sm text-stone-900 placeholder:text-stone-400 outline-none focus:border-[#dc2626]"
         />
       </div>
@@ -308,10 +299,17 @@ export default function AddMenuItemForm({ onSubmitItem }: AddMenuItemFormProps) 
       <div className="pt-1">
         <Button
           type="submit"
-          disabled={uploadingImage}
+          disabled={uploadingImage || submitting}
           className="h-11 rounded-2xl bg-[#dc2626] hover:bg-[#b91c1c] text-white text-sm font-bold px-6 shadow-sm shadow-red-600/20 cursor-pointer"
         >
-          Submit Item for Admin Review
+          {submitting ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Submitting...
+            </>
+          ) : (
+            "Submit Item for Admin Review"
+          )}
         </Button>
       </div>
     </form>
