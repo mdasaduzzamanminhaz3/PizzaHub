@@ -8,8 +8,8 @@ export const getMenuItems = async(query="")=>{
 }
 
 
-export const getMenuItemById = async(menuItem:string)=> {
-    const res = await fetch(`${BASE_URL}/jobs/${menuItem}`)
+export const getMenuItemById = async(menuItemId:string)=> {
+    const res = await fetch(`${BASE_URL}/menuItems/${menuItemId}`)
     return res.json()
 }
 

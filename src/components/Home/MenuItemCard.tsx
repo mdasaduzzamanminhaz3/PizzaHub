@@ -6,6 +6,7 @@ import { ArrowRight, Crown, MapPin, Store } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { MenuItemCardProps } from '@/types/home/menu.types';
+import Link from 'next/link';
 
 const MenuItemCard: React.FC<MenuItemCardProps> = ({ item }) => {
   return (
@@ -71,8 +72,8 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item }) => {
 
         {/* Full-width Action CTA */}
         <div className="mt-4">
-          <a
-            href={`item-${item._id}`}
+          <Link
+            href={`/menu/${item._id}`}
             className={cn(
               buttonVariants(),
               'w-full h-11 rounded-xl bg-[#dc2626] hover:bg-[#b91c1c] text-white text-sm font-bold shadow-sm hover:shadow-md hover:shadow-red-600/20 transition-all inline-flex items-center justify-center gap-2'
@@ -80,7 +81,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item }) => {
           >
             <span>View Details</span>
             <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
-          </a>
+          </Link>
         </div>
       </div>
     </motion.article>
