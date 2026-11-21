@@ -28,22 +28,31 @@ interface PizzaOrderCardProps {
 }
 
 const statusStyles: Record<
-  OrderStatus,
-  { badge: string; dot: string }
+  string,
+  { badge: string; dot: string; label: string }
 > = {
   Pending: {
-    badge: "bg-amber-100/90 text-amber-800 border-amber-200/80",
+    badge: "bg-amber-50 text-amber-700 border-amber-200",
     dot: "bg-amber-500",
+    label: "Pending",
   },
   Accepted: {
-    badge: "bg-emerald-100/90 text-emerald-800 border-emerald-200/80",
+    badge: "bg-emerald-50 text-emerald-700 border-emerald-200",
     dot: "bg-emerald-500",
+    label: "Accepted",
   },
   Rejected: {
-    badge: "bg-red-100/90 text-[#dc2626] border-red-200/80",
-    dot: "bg-[#dc2626]",
+    badge: "bg-rose-50 text-rose-700 border-rose-200",
+    dot: "bg-rose-500",
+    label: "Rejected",
+  },
+  Cancelled: {
+    badge: "bg-stone-100 text-stone-600 border-stone-200",
+    dot: "bg-stone-400",
+    label: "Cancelled",
   },
 };
+
 
 export default function PizzaOrderCard({
   order,

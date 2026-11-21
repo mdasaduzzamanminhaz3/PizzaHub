@@ -12,6 +12,8 @@ import {
   Plus,
 } from "lucide-react";
 import type { MenuItem } from "@/types/home/menu.types";
+import { toast } from "sonner";
+import { createPizzaOrder } from "@/lib/actions/orders";
 
 interface MenuItemDetailsViewProps {
   item: MenuItem;
@@ -28,12 +30,44 @@ export default function MenuItemDetailsView({ item }: MenuItemDetailsViewProps) 
   const [deliveryDate, setDeliveryDate] = useState<string>("");
   const [deliveryAddress, setDeliveryAddress] = useState<string>("");
   const [instructions, setInstructions] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const orderTotal = (Number(item.price) * quantity).toFixed(2);
 
-  // Submit Pizza Order functionality intentionally left empty for later implementation
-  const handleSubmitOrder = (e: React.FormEvent) => {
+  const handleSubmitOrder = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!deliveryDate || !deliveryAddress) {
+      toast.error("Please fill in delivery date and delivery address.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    const res = await createPizzaOrder({
+      menuItemId: item._id || "",
+      itemName: item.name,
+      vendorId: item.vendorId || "",
+      quantity,
+      unitPrice: Number(item.price),
+      totalAmount: Number(orderTotal),
+      deliveryDate,
+      deliveryAddress,
+      instructions,
+    });
+
+    setIsSubmitting(false);
+
+    if (!res?.success) {
+      toast.error(res?.message || "Failed to place order");
+      return;
+    }
+
+    toast.success("Order Submitted!");
+    setQuantity(1);
+    setDeliveryDate("");
+    setDeliveryAddress("");
+    setInstructions("");
   };
 
   return (
@@ -175,9 +209,10 @@ export default function MenuItemDetailsView({ item }: MenuItemDetailsViewProps) 
             <div className="flex items-center gap-3">
               <button
                 type="button"
+                disabled={isSubmitting}
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                 aria-label="Decrease quantity"
-                className="w-8 h-8 rounded-xl bg-white border border-orange-200 text-stone-700 hover:border-[#dc2626] hover:text-[#dc2626] flex items-center justify-center transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-xl bg-white border border-orange-200 text-stone-700 hover:border-[#dc2626] hover:text-[#dc2626] disabled:opacity-50 flex items-center justify-center transition-colors cursor-pointer"
               >
                 <Minus className="w-3.5 h-3.5" />
               </button>
@@ -186,9 +221,10 @@ export default function MenuItemDetailsView({ item }: MenuItemDetailsViewProps) 
               </span>
               <button
                 type="button"
+                disabled={isSubmitting}
                 onClick={() => setQuantity((q) => q + 1)}
                 aria-label="Increase quantity"
-                className="w-8 h-8 rounded-xl bg-white border border-orange-200 text-stone-700 hover:border-[#dc2626] hover:text-[#dc2626] flex items-center justify-center transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-xl bg-white border border-orange-200 text-stone-700 hover:border-[#dc2626] hover:text-[#dc2626] disabled:opacity-50 flex items-center justify-center transition-colors cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
               </button>
@@ -258,13 +294,16 @@ export default function MenuItemDetailsView({ item }: MenuItemDetailsViewProps) 
             </span>
           </div>
 
-          {/* Submit Button (Functionality kept empty) */}
+          {/* Submit Button */}
           <button
             type="submit"
-            className="w-full h-12 rounded-xl bg-[#dc2626] hover:bg-[#b91c1c] active:scale-[0.99] text-white text-sm font-extrabold inline-flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+            disabled={isSubmitting}
+            className="w-full h-12 rounded-xl bg-[#dc2626] hover:bg-[#b91c1c] disabled:opacity-60 active:scale-[0.99] text-white text-sm font-extrabold inline-flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
           >
             <ShoppingBag className="w-4 h-4" />
-            <span>Submit Pizza Order</span>
+            <span>
+              {isSubmitting ? "Submitting Order..." : "Submit Pizza Order"}
+            </span>
           </button>
         </form>
       </div>
