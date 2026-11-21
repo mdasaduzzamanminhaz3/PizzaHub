@@ -10,7 +10,7 @@ import VendorMenuItemCard, {
   VendorMenuItem,
 } from "@/app/components/vendor/VendorMenuItemCard";
 import PlanAllowanceBanner from "@/app/components/vendor/PlanAllowanceBanner";
-import { deleteMenuItem } from "@/lib/actions/menuItems";
+import { deleteMenuItem, updateMenuItemStatus } from "@/lib/actions/menuItems";
 
 const FREE_PLAN_LIMIT = 3;
 
@@ -27,25 +27,33 @@ export default function VendorMenuItemsClient({
     (item) => item.status === "Approved" && item.isActive
   ).length;
 
-  const handleToggleActive = (itemId: string) => {
-    const target = items.find((item) => item.id === itemId);
-    if (!target) return;
+const handleToggleActive = async (itemId: string) => {
+    const item = items.find((i) => i.id === itemId);
+    if (!item) return;
 
-    if (!target.isActive && activeApprovedCount >= FREE_PLAN_LIMIT) {
-      toast.error(
-        `Free Plan limit (${FREE_PLAN_LIMIT} active items) reached. Upgrade to Premium to activate more.`
-      );
+
+    if (!item.isActive && activeApprovedCount >= FREE_PLAN_LIMIT) {
+      toast.error(`Free Plan limit (${FREE_PLAN_LIMIT} active items) reached.`);
       return;
     }
 
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === itemId ? { ...item, isActive: !item.isActive } : item
-      )
-    );
-    toast.success(
-      target.isActive ? "Item marked as Inactive." : "Item marked as Active."
-    );
+    const nextActive = !item.isActive;
+
+    try {
+      const result = await updateMenuItemStatus(itemId, { isActive: nextActive });
+
+      if (result?.modifiedCount > 0 || result?.matchedCount > 0) {
+        setItems((prev) =>
+          prev.map((i) => (i.id === itemId ? { ...i, isActive: nextActive } : i))
+        );
+        toast.success(nextActive ? "Item is now Active." : "Item is now Inactive.");
+      } else {
+        toast.error("Failed to update status.");
+      }
+    } catch (error) {
+      console.error("Toggle active error:", error);
+      toast.error("Something went wrong.");
+    }
   };
 
 const handleDelete = async (itemId: string) => {

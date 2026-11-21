@@ -28,7 +28,11 @@ export default async function MenuPage({
   }
 
 const menuItems: MenuItem[] = await getMenuItems(query.toString());
-
+const visibleMenuItems = Array.isArray(menuItems)
+    ? menuItems.filter(
+        (item) => item.status === "Approved" && item.isActive === true
+      )
+    : [];
   return (
     <section id="menu" className="relative py-12 md:py-16 bg-[#FFFDFB]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -58,9 +62,9 @@ const menuItems: MenuItem[] = await getMenuItems(query.toString());
         </Suspense>
 
         {/* Cards Grid */}
-        {menuItems.length > 0 ? (
+        {visibleMenuItems.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {menuItems.map((item) => (
+            {visibleMenuItems.map((item) => (
               <MenuItemCard key={item._id} item={item} />
             ))}
           </div>

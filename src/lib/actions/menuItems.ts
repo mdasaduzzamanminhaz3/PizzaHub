@@ -33,3 +33,9 @@ export const deleteMenuItem = async (id:string)=> {
     const res = await protectedMutation(api,"DELETE");
     return res.json();
 }
+
+export const updateMenuItemStatus = async (id:string, updates:{isActive?:boolean;status?:string;isFeatured?:boolean})=> {
+    const api =`${BASE_URL}/menuItems/${id}`;
+    const res = await protectedMutation(api,"PATCH",updates);
+    return res.json();
+}
