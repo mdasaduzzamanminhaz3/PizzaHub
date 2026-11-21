@@ -2,14 +2,17 @@
 
 import React, { useMemo, useState } from "react";
 import { Lock } from "lucide-react";
-import PlatformTransactionsTable, { PlatformTransactionRecord, TransactionStatus } from "@/app/components/admin/PlatformTransactionsTable";
+import PlatformTransactionsTable, {
+  PlatformTransactionRecord,
+  TransactionStatus,
+} from "@/app/components/admin/PlatformTransactionsTable";
 import TransactionsSummaryCards from "@/app/components/admin/TransactionsSummaryCards";
 
 const initialTransactions: PlatformTransactionRecord[] = [
   {
     id: "tx-101",
     vendorName: "Il Forno Brick Oven",
-    planName: "Premium Monthly",
+    planName: "Lifetime Premium",
     amount: "$29.00",
     currency: "USD",
     stripeSessionId: "cs_live_a1B2c3D4e5F6g7H8i9J0",
@@ -19,7 +22,7 @@ const initialTransactions: PlatformTransactionRecord[] = [
   {
     id: "tx-102",
     vendorName: "Napoli Heat Kitchen",
-    planName: "Premium Monthly",
+    planName: "Lifetime Premium",
     amount: "$29.00",
     currency: "USD",
     stripeSessionId: "cs_live_z9Y8x7W6v5U4t3S2r1Q0",
@@ -29,7 +32,7 @@ const initialTransactions: PlatformTransactionRecord[] = [
   {
     id: "tx-103",
     vendorName: "Crust & Craft Pizzeria",
-    planName: "Premium Monthly",
+    planName: "Lifetime Premium",
     amount: "$29.00",
     currency: "USD",
     stripeSessionId: "cs_live_f4G5h6J7k8L9m0N1b2V3",
@@ -41,7 +44,7 @@ const initialTransactions: PlatformTransactionRecord[] = [
 export default function AdminTransactionsPage() {
   const [records] = useState<PlatformTransactionRecord[]>(initialTransactions);
   const [statusFilter, setStatusFilter] = useState<"All" | TransactionStatus>(
-    "All"
+    "All",
   );
 
   const summary = useMemo(() => {

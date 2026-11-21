@@ -1,19 +1,25 @@
-"use client";
-
-import React, { useState } from "react";
-
-import { cn } from "@/lib/utils";
-import { toast } from "sonner";
+import React from "react";
+import { getSession } from "@/lib/core/server";
+import { getUserPremiumById } from "@/lib/api/users";
+import { getUserPaymentsById } from "@/lib/api/payments";
 import FreeStarterPlanCard from "@/app/components/vendor/FreeStarterPlanCard";
 import StripeBillingHistoryCard from "@/app/components/vendor/StripeBillingHistoryCard";
-import PremiumKitchenPlanCard from "@/app/components/vendor/PremiumKitchenPlanCard";
+import CheckoutTrigger from "@/app/components/vendor/CheckoutTrigger";
 
-export default function VendorSubscriptionPage() {
-  const [isPremiumActive, setIsPremiumActive] = useState(true);
+export default async function VendorSubscriptionPage() {
+  const session = await getSession();
+  const userId = session?.user?.id || "";
+
+  const [premiumData, paymentData] = await Promise.all([
+    getUserPremiumById(userId),
+    getUserPaymentsById(userId),
+  ]);
+
+  const isPremiumActive = Boolean(premiumData?.premium);
+  const transactions = Array.isArray(paymentData) ? paymentData : [];
 
   return (
     <div className="space-y-6">
-      {/* Page Header + Preview Toggle */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-3xl border border-orange-200/80 bg-white px-6 py-5 shadow-2xs">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight text-stone-950">
@@ -24,46 +30,13 @@ export default function VendorSubscriptionPage() {
             homepage priority.
           </p>
         </div>
-
-        {/* Preview State Toggle (Replace with real subscription state later) */}
-        <div className="inline-flex items-center rounded-full bg-[#FAF7F2] p-1 border border-orange-200/80 w-fit">
-          <button
-            type="button"
-            onClick={() => setIsPremiumActive(false)}
-            className={cn(
-              "rounded-full px-3.5 py-1.5 text-xs font-bold transition-all cursor-pointer",
-              !isPremiumActive
-                ? "bg-[#dc2626] text-white shadow-2xs"
-                : "text-stone-600 hover:text-stone-950"
-            )}
-          >
-            Free View
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsPremiumActive(true)}
-            className={cn(
-              "rounded-full px-3.5 py-1.5 text-xs font-bold transition-all cursor-pointer",
-              isPremiumActive
-                ? "bg-[#dc2626] text-white shadow-2xs"
-                : "text-stone-600 hover:text-stone-950"
-            )}
-          >
-            Premium Active
-          </button>
-        </div>
       </div>
 
       {/* 2-Column Plan Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <FreeStarterPlanCard
-          isPremiumActive={isPremiumActive}
-          onSelectFree={() => {
-            setIsPremiumActive(false);
-            toast.info("Switched preview to Free Starter.");
-          }}
-        />
-        <PremiumKitchenPlanCard
+        <FreeStarterPlanCard isPremiumActive={isPremiumActive} />
+
+        <CheckoutTrigger
           plan={{
             title: "Premium Kitchen",
             price: 29,
@@ -72,15 +45,11 @@ export default function VendorSubscriptionPage() {
             verifiedText:
               "Verified via Stripe Webhook • Unlimited Items Unlocked",
           }}
-          onUpgradeClick={() => {
-            setIsPremiumActive(true);
-            toast.success("Switched preview to Premium Kitchen.");
-          }}
         />
       </div>
 
       {/* Stripe Billing History Table */}
-      <StripeBillingHistoryCard />
+      <StripeBillingHistoryCard transactions={transactions} />
     </div>
   );
 }
