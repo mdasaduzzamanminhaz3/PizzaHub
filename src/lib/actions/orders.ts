@@ -77,3 +77,44 @@ export const cancelPizzaOrder = async(orderId:string)=> {
       data,
     };
 }
+
+
+const updateOrderStatus = async (
+  orderId: string,
+  status: "Accepted" | "Rejected"
+) => {
+  try {
+    const res = await protectedMutation(
+      `${BASE_URL}/orders/${orderId}/status`,
+      "PATCH",
+      { status }
+    );
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      return {
+        success: false,
+        message: data?.message || `Failed to mark order as ${status}`,
+      };
+    }
+
+    return {
+      success: true,
+      message: `Order ${status.toLowerCase()}!`,
+      data,
+    };
+  } catch (error: any) {
+    console.error("Update order status action error:", error);
+    return {
+      success: false,
+      message: error?.message || "Something went wrong",
+    };
+  }
+};
+
+export const acceptPizzaOrder = async (orderId: string) =>
+  updateOrderStatus(orderId, "Accepted");
+
+export const rejectPizzaOrder = async (orderId: string) =>
+  updateOrderStatus(orderId, "Rejected");

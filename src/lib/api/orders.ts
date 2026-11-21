@@ -20,3 +20,25 @@ export const getCustomerOrders = async (userId: string) => {
     return [];
   }
 };
+
+export const getVendorOrders = async (vendorId: string) => {
+  try {
+    const res = await fetch(`${BASE_URL}/orders?vendorId=${vendorId}`, {
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      return [];
+    }
+
+    const contentType = res.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
+      return [];
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("Error fetching vendor orders:", error);
+    return [];
+  }
+};
