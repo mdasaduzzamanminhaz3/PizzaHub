@@ -5,6 +5,7 @@ export interface MenuItem {
   price: number;
   location: string;
   vendorId: string;
+  vendorName:string;
   status?: string;
   isActive?: boolean;
   isFeatured: boolean;

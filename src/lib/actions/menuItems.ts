@@ -26,7 +26,13 @@ export const getVendorMenuItems = async() => {
     return res.json()
 }
 
-
+export const getAllMenuItemsAdmin = async()=> {
+    const res = await fetch(`${BASE_URL}/menuItems?admin=true`);
+    if(!res.ok){
+        return [];
+    }
+    return res.json();
+}
 
 export const deleteMenuItem = async (id:string)=> {
     const api = `${BASE_URL}/menuItems/${id}`;

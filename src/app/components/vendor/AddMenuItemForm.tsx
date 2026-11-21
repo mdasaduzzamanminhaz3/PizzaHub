@@ -27,7 +27,6 @@ const locations = [
 ];
 
 export default function AddMenuItemForm() {
-  const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);

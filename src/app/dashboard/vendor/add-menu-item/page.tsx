@@ -1,17 +1,20 @@
-"use client";
-
-import React, { useState } from "react";
-
-import { cn } from "@/lib/utils";
-import FreePlanLimitNotice from "@/app/components/vendor/FreePlanLimitNotice";
+import React from "react";
+import { redirect } from "next/navigation";
 import AddMenuItemForm from "@/app/components/vendor/AddMenuItemForm";
+import { getVendorMenuItemCount } from "@/lib/api/menuItems";
 
-export default function VendorAddMenuItemPage() {
-  const [isLimitReached, setIsLimitReached] = useState(false);
+const FREE_PLAN_LIMIT = 3;
+
+export default async function VendorAddMenuItemPage() {
+  const data = await getVendorMenuItemCount();
+  const itemCount = Number(data?.count ?? 0);
+
+  if (itemCount >= FREE_PLAN_LIMIT) {
+    redirect("/dashboard/vendor/subscription");
+  }
 
   return (
     <div className="rounded-3xl border border-orange-200/80 bg-white p-6 sm:p-8 shadow-2xs space-y-6">
-      {/* Header + State Preview Toggle */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight text-stone-950">
@@ -24,41 +27,15 @@ export default function VendorAddMenuItemPage() {
           </p>
         </div>
 
-        {/* Preview Toggle (Replace with real plan & item count check later) */}
-        <div className="inline-flex items-center rounded-full bg-[#FAF7F2] p-1 border border-orange-200/80 w-fit">
-          <button
-            type="button"
-            onClick={() => setIsLimitReached(false)}
-            className={cn(
-              "rounded-full px-3.5 py-1.5 text-xs font-bold transition-all cursor-pointer",
-              !isLimitReached
-                ? "bg-[#dc2626] text-white shadow-2xs"
-                : "text-stone-600 hover:text-stone-950"
-            )}
-          >
-            Add Form
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsLimitReached(true)}
-            className={cn(
-              "rounded-full px-3.5 py-1.5 text-xs font-bold transition-all cursor-pointer",
-              isLimitReached
-                ? "bg-[#dc2626] text-white shadow-2xs"
-                : "text-stone-600 hover:text-stone-950"
-            )}
-          >
-            Limit Reached (3/3)
-          </button>
+        <div className="rounded-full bg-[#FAF7F2] px-4 py-1.5 border border-orange-200/80 text-xs font-bold text-stone-700 w-fit">
+          Free Plan Usage:{" "}
+          <span className="text-stone-950">
+            {itemCount} / {FREE_PLAN_LIMIT}
+          </span>
         </div>
       </div>
 
-      {/* Render Form or Free Plan Limit Notice */}
-      {isLimitReached ? (
-        <FreePlanLimitNotice currentCount={3} maxLimit={3} pricePerMonth={29} />
-      ) : (
-        <AddMenuItemForm />
-      )}
+      <AddMenuItemForm />
     </div>
   );
 }
