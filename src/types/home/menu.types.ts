@@ -1,14 +1,15 @@
 export interface MenuItem {
-  id: string;
-  title: string;
+  _id: string;
+  name: string;
   category: string;
-  isPremium?: boolean;
   price: number;
-  description: string;
-  kitchenName: string;
   location: string;
-  imageUrl: string;
-  href?: string;
+  vendorId: string;
+  status?: string;
+  isActive?: boolean;
+  isFeatured: boolean;
+  description: string;
+  image: string;
 }
 
 export interface MenuItemCardProps {

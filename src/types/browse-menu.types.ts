@@ -7,3 +7,4 @@ export interface BrowseMenuProps {
   categories?: string[];
   locations?: string[];
 }
+

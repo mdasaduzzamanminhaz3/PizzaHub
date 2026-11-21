@@ -17,8 +17,8 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item }) => {
       {/* Top Image Wrapper */}
       <div className="relative h-56 sm:h-60 w-full overflow-hidden bg-stone-100">
         <img
-          src={item.imageUrl}
-          alt={item.title}
+          src={item.image}
+          alt={item.name}
           className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
         />
 
@@ -30,13 +30,13 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item }) => {
           {item.category}
         </span>
 
-        {/* Premium Badge (Top Right) */}
-        {item.isPremium && (
+        {/* Premium Badge (Top Right)
+        {item. && (
           <span className="absolute top-3.5 right-3.5 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold shadow-sm">
             <Crown className="w-3.5 h-3.5 fill-white" />
             <span>Premium</span>
           </span>
-        )}
+        )} */}
       </div>
 
       {/* Card Body */}
@@ -44,7 +44,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item }) => {
         {/* Title & Price Row */}
         <div className="flex items-start justify-between gap-3">
           <h3 className="text-lg font-extrabold text-stone-900 leading-snug line-clamp-1 group-hover:text-[#dc2626] transition-colors">
-            {item.title}
+            {item.name}
           </h3>
           <span className="shrink-0 text-lg font-extrabold text-[#dc2626]">
             ${item.price.toFixed(2)}
@@ -60,7 +60,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item }) => {
         <div className="mt-5 pt-4 border-t border-orange-100/80 flex items-center justify-between gap-2 text-xs font-semibold text-stone-600">
           <div className="inline-flex items-center gap-1.5 truncate">
             <Store className="w-3.5 h-3.5 text-orange-500 shrink-0" />
-            <span className="truncate">{item.kitchenName}</span>
+            <span className="truncate">{item.vendorId}</span>
           </div>
 
           <div className="inline-flex items-center gap-1 text-stone-400 shrink-0">
@@ -72,7 +72,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item }) => {
         {/* Full-width Action CTA */}
         <div className="mt-4">
           <a
-            href={item.href || `#item-${item.id}`}
+            href={`item-${item._id}`}
             className={cn(
               buttonVariants(),
               'w-full h-11 rounded-xl bg-[#dc2626] hover:bg-[#b91c1c] text-white text-sm font-bold shadow-sm hover:shadow-md hover:shadow-red-600/20 transition-all inline-flex items-center justify-center gap-2'
