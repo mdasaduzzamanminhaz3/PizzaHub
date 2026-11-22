@@ -17,9 +17,15 @@ import { createPizzaOrder } from "@/lib/actions/orders";
 
 interface MenuItemDetailsViewProps {
   item: MenuItem;
+  defaultAddress?: string;
+  defaultPhone?: string;
 }
 
-export default function MenuItemDetailsView({ item }: MenuItemDetailsViewProps) {
+export default function MenuItemDetailsView({
+  item,
+  defaultAddress = "",
+  defaultPhone = "",
+}: MenuItemDetailsViewProps) {
   const galleryImages = [
     item.image,
     "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=900&q=80",
@@ -28,7 +34,9 @@ export default function MenuItemDetailsView({ item }: MenuItemDetailsViewProps) 
   const [selectedImage, setSelectedImage] = useState<string>(galleryImages[0]);
   const [quantity, setQuantity] = useState<number>(1);
   const [deliveryDate, setDeliveryDate] = useState<string>("");
-  const [deliveryAddress, setDeliveryAddress] = useState<string>("");
+  const [deliveryAddress, setDeliveryAddress] =
+    useState<string>(defaultAddress);
+  const [customerPhone, setCustomerPhone] = useState<string>(defaultPhone);
   const [instructions, setInstructions] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -47,12 +55,14 @@ export default function MenuItemDetailsView({ item }: MenuItemDetailsViewProps) 
     const res = await createPizzaOrder({
       menuItemId: item._id || "",
       itemName: item.name,
+      image: item.image || "",
       vendorId: item.vendorId || "",
       quantity,
       unitPrice: Number(item.price),
       totalAmount: Number(orderTotal),
       deliveryDate,
       deliveryAddress,
+      customerPhone,
       instructions,
     });
 
@@ -66,7 +76,6 @@ export default function MenuItemDetailsView({ item }: MenuItemDetailsViewProps) 
     toast.success("Order Submitted!");
     setQuantity(1);
     setDeliveryDate("");
-    setDeliveryAddress("");
     setInstructions("");
   };
 
@@ -245,6 +254,24 @@ export default function MenuItemDetailsView({ item }: MenuItemDetailsViewProps) 
               value={deliveryDate}
               onChange={(e) => setDeliveryDate(e.target.value)}
               className="w-full h-11 px-3.5 rounded-xl bg-[#FAF7F2] border border-orange-200/70 focus:border-[#dc2626] focus:bg-white focus:outline-none text-sm font-medium text-stone-800 transition-all"
+            />
+          </div>
+
+          {/* Phone Number */}
+          <div className="space-y-1.5">
+            <label
+              htmlFor="customer-phone"
+              className="block text-[11px] font-extrabold uppercase tracking-wider text-stone-600"
+            >
+              Phone Number
+            </label>
+            <input
+              id="customer-phone"
+              type="tel"
+              value={customerPhone}
+              onChange={(e) => setCustomerPhone(e.target.value)}
+              placeholder="017XXXXXXXX"
+              className="w-full h-11 px-3.5 rounded-xl bg-[#FAF7F2] border border-orange-200/70 focus:border-[#dc2626] focus:bg-white focus:outline-none text-sm font-medium text-stone-800 placeholder:text-stone-400 transition-all"
             />
           </div>
 

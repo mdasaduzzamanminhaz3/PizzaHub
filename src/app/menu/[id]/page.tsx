@@ -2,8 +2,9 @@ import React from "react";
 import Link from "next/link";
 import { ArrowLeft, Pizza } from "lucide-react";
 import { getMenuItemById } from "@/lib/api/menuItems";
+import { getSession } from "@/lib/core/server";
+import { getUserById } from "@/lib/api/users";
 import MenuItemDetailsView from "@/components/BrowseMenu/MenuItemDetailsView";
-
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -11,7 +12,14 @@ interface PageProps {
 
 const MenuItemDetailsPage = async ({ params }: PageProps) => {
   const { id } = await params;
-  const item = await getMenuItemById(id);
+  const [item, session] = await Promise.all([
+    getMenuItemById(id),
+    getSession(),
+  ]);
+
+  const dbUser = session?.user?.id
+    ? await getUserById(session.user.id)
+    : null;
 
   if (!item || !item._id) {
     return (
@@ -51,7 +59,11 @@ const MenuItemDetailsPage = async ({ params }: PageProps) => {
         </Link>
 
         {/* Main Details & Order Layout */}
-        <MenuItemDetailsView item={item} />
+        <MenuItemDetailsView
+          item={item}
+          defaultAddress={dbUser?.address || ""}
+          defaultPhone={dbUser?.phone || ""}
+        />
       </div>
     </section>
   );
