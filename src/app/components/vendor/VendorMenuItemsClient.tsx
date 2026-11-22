@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Plus, Pizza } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -10,7 +11,12 @@ import VendorMenuItemCard, {
   VendorMenuItem,
 } from "@/app/components/vendor/VendorMenuItemCard";
 import PlanAllowanceBanner from "@/app/components/vendor/PlanAllowanceBanner";
-import { deleteMenuItem, updateMenuItemStatus } from "@/lib/actions/menuItems";
+import {
+  deleteMenuItem,
+  updateMenuItemStatus,
+  updateVendorMenuItem,
+} from "@/lib/actions/menuItems";
+import { MenuItemUpdatePayload } from "./EditMenuItemModal";
 
 const FREE_PLAN_LIMIT = 3;
 
@@ -21,16 +27,16 @@ interface VendorMenuItemsClientProps {
 export default function VendorMenuItemsClient({
   initialItems,
 }: VendorMenuItemsClientProps) {
+  const router = useRouter();
   const [items, setItems] = useState<VendorMenuItem[]>(initialItems);
 
   const activeApprovedCount = items.filter(
     (item) => item.status === "Approved" && item.isActive
   ).length;
 
-const handleToggleActive = async (itemId: string) => {
+  const handleToggleActive = async (itemId: string) => {
     const item = items.find((i) => i.id === itemId);
     if (!item) return;
-
 
     if (!item.isActive && activeApprovedCount >= FREE_PLAN_LIMIT) {
       toast.error(`Free Plan limit (${FREE_PLAN_LIMIT} active items) reached.`);
@@ -56,7 +62,7 @@ const handleToggleActive = async (itemId: string) => {
     }
   };
 
-const handleDelete = async (itemId: string) => {
+  const handleDelete = async (itemId: string) => {
     try {
       const result = await deleteMenuItem(itemId);
 
@@ -70,6 +76,34 @@ const handleDelete = async (itemId: string) => {
       console.error("Delete menu item error:", error);
       toast.error("Something went wrong while deleting.");
     }
+  };
+
+  const handleEditItem = async (
+    itemId: string,
+    payload: MenuItemUpdatePayload
+  ) => {
+    const res = await updateVendorMenuItem(itemId, payload);
+
+    if (!res?.success) {
+      const msg = res?.message || "Failed to update menu item.";
+      toast.error(msg);
+      throw new Error(msg);
+    }
+
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === itemId
+          ? {
+              ...item,
+              ...payload,
+              price: Number(payload.price),
+            }
+          : item
+      )
+    );
+
+    toast.success("Menu item updated successfully!");
+    router.refresh();
   };
 
   return (
@@ -117,6 +151,7 @@ const handleDelete = async (itemId: string) => {
               item={item}
               onToggleActive={handleToggleActive}
               onDelete={handleDelete}
+              onEdit={handleEditItem}
             />
           ))}
         </div>

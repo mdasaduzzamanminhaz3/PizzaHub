@@ -1,6 +1,8 @@
 "use server";
+import { revalidatePath } from "next/cache";
 import { getUserById } from "../api/users";
 import { getSession, protectedMutation } from "../core/server";
+import { MenuItemUpdatePayload } from "@/app/components/vendor/EditMenuItemModal";
 
 const BASE_URL= process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000"
 export const createMenuItem = async (data: Record<string, any>) => {
@@ -79,4 +81,41 @@ export const updateMenuItemStatus = async (id:string, updates:{isActive?:boolean
     const api =`${BASE_URL}/menuItems/${id}`;
     const res = await protectedMutation(api,"PATCH",updates);
     return res.json();
+}
+
+export async function updateVendorMenuItem(
+  itemId: string,
+  payload: MenuItemUpdatePayload
+) {
+  try {
+    const res = await protectedMutation(
+      `${BASE_URL}/menuItems/${itemId}`,
+      "PATCH",
+      payload
+    );
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      return {
+        success: false,
+        code: data?.code || (res.status === 403 ? "FORBIDDEN" : "ERROR"),
+        message: data?.message || "Failed to update menu item.",
+      };
+    }
+
+    revalidatePath("/dashboard/vendor/menu-items");
+    revalidatePath("/menu");
+
+    return {
+      success: true,
+      data,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "Failed to update menu item.",
+    };
+  }
 }
