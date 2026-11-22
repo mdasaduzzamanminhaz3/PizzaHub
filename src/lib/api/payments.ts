@@ -13,3 +13,10 @@ export const getUserPaymentsById = async (userId: string) => {
     return [];
   }
 };
+
+export const getAllPaymentsAdmin = async () => {
+  const res = await fetch(`${BASE_URL}/payments`, { cache: "no-store" });
+  if (!res.ok) return [];
+  const data = await res.json();
+  return Array.isArray(data) ? data : [];
+};
