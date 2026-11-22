@@ -18,44 +18,47 @@ export default function VendorCustomerOrdersClient({
   const router = useRouter();
   const [orders, setOrders] =
     useState<IncomingCustomerOrder[]>(initialOrders);
+  const [selectedOrder, setSelectedOrder] =
+    useState<IncomingCustomerOrder | null>(null);
 
-const handleAccept = async (orderId: string) => {
-  const res = await acceptPizzaOrder(orderId);
+  const handleAccept = async (orderId: string) => {
+    const res = await acceptPizzaOrder(orderId);
 
-  if (!res?.success) {
-    toast.error(res?.message || "Failed to accept order.");
-    return;
-  }
+    if (!res?.success) {
+      toast.error(res?.message || "Failed to accept order.");
+      return;
+    }
 
-  setOrders((prev) =>
-    prev.map((item) =>
-      item.id === orderId && item.status === "Pending"
-        ? { ...item, status: "Accepted" }
-        : item
-    )
-  );
-  router.refresh();
-  toast.success("Order accepted and status locked.");
-};
+    setOrders((prev) =>
+      prev.map((item) =>
+        item.id === orderId && item.status === "Pending"
+          ? { ...item, status: "Accepted" }
+          : item
+      )
+    );
+    router.refresh();
+    toast.success("Order accepted and status locked.");
+  };
 
-const handleReject = async (orderId: string) => {
-  const res = await rejectPizzaOrder(orderId);
+  const handleReject = async (orderId: string) => {
+    const res = await rejectPizzaOrder(orderId);
 
-  if (!res?.success) {
-    toast.error(res?.message || "Failed to reject order.");
-    return;
-  }
+    if (!res?.success) {
+      toast.error(res?.message || "Failed to reject order.");
+      return;
+    }
 
-  setOrders((prev) =>
-    prev.map((item) =>
-      item.id === orderId && item.status === "Pending"
-        ? { ...item, status: "Rejected" }
-        : item
-    )
-  );
-  router.refresh();
-  toast.info("Order rejected and status locked.");
-};
+    setOrders((prev) =>
+      prev.map((item) =>
+        item.id === orderId && item.status === "Pending"
+          ? { ...item, status: "Rejected" }
+          : item
+      )
+    );
+    router.refresh();
+    toast.info("Order rejected and status locked.");
+  };
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -81,10 +84,90 @@ const handleReject = async (orderId: string) => {
             <IncomingOrderCard
               key={order.id}
               order={order}
+              onDetails={(item) => setSelectedOrder(item)}
               onAccept={handleAccept}
               onReject={handleReject}
             />
           ))}
+        </div>
+      )}
+
+      {/* Order & Customer Details Modal */}
+      {selectedOrder && (
+        <div
+          onClick={() => setSelectedOrder(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md rounded-3xl border border-orange-200/80 bg-white p-6 shadow-xl space-y-4"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-extrabold text-stone-950">
+                  {selectedOrder.pizzaName}
+                </h3>
+                <p className="text-xs text-stone-500">
+                  Order Code: {selectedOrder.orderCode} • ID: {selectedOrder.id}
+                </p>
+              </div>
+              <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-[#dc2626]">
+                {selectedOrder.status}
+              </span>
+            </div>
+
+            <div className="space-y-2 rounded-2xl bg-[#FAF7F2] p-4 text-xs text-stone-700 border border-orange-200/60">
+              <p>
+                <strong>Customer Name:</strong> {selectedOrder.customerName}
+              </p>
+              {selectedOrder.customerEmail && (
+                <p>
+                  <strong>Customer Email:</strong> {selectedOrder.customerEmail}
+                </p>
+              )}
+              <p>
+                <strong>Phone Number:</strong>{" "}
+                {selectedOrder.customerPhone || "Not provided"}
+              </p>
+              {selectedOrder.quantity !== undefined && (
+                <p>
+                  <strong>Quantity:</strong> {selectedOrder.quantity}
+                </p>
+              )}
+              {selectedOrder.totalAmount !== undefined && (
+                <p>
+                  <strong>Total Amount:</strong> ${selectedOrder.totalAmount}
+                </p>
+              )}
+              <p>
+                <strong>Delivery Date:</strong> {selectedOrder.deliveryDate}
+              </p>
+              <p>
+                <strong>Delivery Address:</strong> {selectedOrder.address}
+              </p>
+              {selectedOrder.requestedOn && (
+                <p>
+                  <strong>Requested On:</strong> {selectedOrder.requestedOn}
+                </p>
+              )}
+              {selectedOrder.note && (
+                <p>
+                  <strong>Customer Note:</strong> &ldquo;{selectedOrder.note}
+                  &rdquo;
+                </p>
+              )}
+            </div>
+
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => setSelectedOrder(null)}
+                className="rounded-full bg-[#dc2626] hover:bg-[#b91c1c] px-5 py-2 text-xs font-bold text-white cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
