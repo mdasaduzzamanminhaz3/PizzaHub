@@ -1,7 +1,9 @@
 import React from "react";
-import { AdminMenuItem, ModerationItemStatus } from "@/app/components/admin/AdminMenuModerationCard";
+import {
+  AdminMenuItem,
+  ModerationItemStatus,
+} from "@/app/components/admin/AdminMenuModerationCard";
 import { getAllMenuItemsAdmin } from "@/lib/actions/menuItems";
-import { MenuItem } from "@/types/home/menu.types";
 import AdminManageMenuItemsClient from "@/app/components/admin/AdminManageMenuItems";
 
 const normalizeStatus = (status: unknown): ModerationItemStatus => {
@@ -13,19 +15,30 @@ const normalizeStatus = (status: unknown): ModerationItemStatus => {
 
 export default async function AdminManageMenuItemsPage() {
   const rawItems = await getAllMenuItemsAdmin();
+  const list = Array.isArray(rawItems) ? rawItems : [];
 
-  const formattedItems: AdminMenuItem[] = Array.isArray(rawItems)
-    ? rawItems.map((item: MenuItem) => ({
-        id: String(item._id ),
-        name: item.name || "",
-        image: item.image || "",
-        vendorName: item.vendorName || "Unknown Vendor",
-        category: item.category || "",
-        price: Number(item.price || 0),
-        description: item.description || "",
-        status: normalizeStatus(item.status),
-      }))
-    : [];
+  const formattedItems: AdminMenuItem[] = list.map((item: any) => ({
+    id: String(item._id || item.id),
+    name: item.name || "Untitled Pizza",
+    category: item.category || "Classic Pizzas",
+    price: Number(item.price || 0),
+    location: item.location || "",
+    description: item.description || "",
+    image: item.image || "",
+    status: normalizeStatus(item.status),
+    isActive: Boolean(item.isActive ?? true),
+    isFeatured: Boolean(item.isFeatured),
+    createdAt: item.createdAt ? String(item.createdAt).split("T")[0] : "",
+    vendorId: item.vendorId || "",
+    vendorName: item.vendorName || "Vendor",
+    vendorEmail: item.vendorEmail || "",
+    restaurantName:
+      item.restaurantName || item.vendorName || "PizzaHub Kitchen",
+    vendorPhone: item.vendorPhone || "",
+    vendorAddress: item.vendorAddress || "",
+    vendorImage: item.vendorImage || "",
+    isVendorPremium: Boolean(item.isVendorPremium),
+  }));
 
   return <AdminManageMenuItemsClient initialItems={formattedItems} />;
 }
