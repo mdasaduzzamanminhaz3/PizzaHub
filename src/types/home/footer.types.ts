@@ -1,3 +1,4 @@
+import type React from "react";
 export interface FooterLinkItem {
   label: string;
   href: string;
@@ -6,7 +7,7 @@ export interface FooterLinkItem {
 export interface FooterSocialItem {
   id: string;
   label: string;
-  shortCode: string;
+  shortCode: React.ReactNode;
   href: string;
 }
 

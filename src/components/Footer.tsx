@@ -2,25 +2,42 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Pizza, MapPin, Phone, Mail, ArrowUpRight } from 'lucide-react';
+import { MapPin, Phone, Mail, ArrowUpRight } from 'lucide-react';
 import type {
   FooterContactInfo,
   FooterLinkItem,
   FooterProps,
   FooterSocialItem,
 } from '@/types/home/footer.types';
+import Image from 'next/image';
+import { FaFacebook, FaInstagram, FaXTwitter } from 'react-icons/fa6';
 
 const defaultSocials: FooterSocialItem[] = [
-  { id: 'x', label: 'X (Twitter)', shortCode: 'X', href: '#x' },
-  { id: 'ig', label: 'Instagram', shortCode: 'IG', href: '#instagram' },
-  { id: 'fb', label: 'Facebook', shortCode: 'FB', href: '#facebook' },
+  {
+    id: 'x',
+    label: 'X (Twitter)',
+    shortCode: <FaXTwitter className="w-4 h-4" />,
+    href: '#x',
+  },
+  {
+    id: 'ig',
+    label: 'Instagram',
+    shortCode: <FaInstagram className="w-4 h-4" />,
+    href: '#instagram',
+  },
+  {
+    id: 'fb',
+    label: 'Facebook',
+    shortCode: <FaFacebook className="w-4 h-4" />,
+    href: '#facebook',
+  },
 ];
 
 const defaultExploreLinks: FooterLinkItem[] = [
-  { label: 'Home', href: '#home' },
-  { label: 'Browse Pizza Menu', href: '#menu' },
-  { label: 'Partner Pizzerias', href: '#pizzerias' },
-  { label: 'Become a Restaurant Vendor', href: '#vendor' },
+  { label: 'Home', href: '/' },
+  { label: 'Browse Pizza Menu', href: '/menu' },
+  { label: 'Partner Pizzerias', href: '/pizzerias' },
+  { label: 'Become a Restaurant Vendor', href: '/vendor' },
 ];
 
 const defaultCompanyLinks: FooterLinkItem[] = [
@@ -67,7 +84,12 @@ const Footer: React.FC<FooterProps> = ({
           <div className="lg:col-span-4 space-y-4">
             <a href="#home" className="inline-flex items-center gap-2.5 group">
               <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#dc2626] to-[#f97316] flex items-center justify-center shadow-sm shadow-red-500/20 group-hover:scale-105 group-hover:-rotate-6 transition-transform duration-200">
-                <Pizza className="w-5 h-5 text-white -rotate-12" strokeWidth={2.2} />
+                <Image
+                  src="/PizzaHub.png"
+                  height={40}
+                  width={40}
+                  alt="pizzahub-logo"
+                />
               </div>
               <span className="text-xl font-extrabold tracking-tight text-stone-950">
                 {brandName}
@@ -86,7 +108,7 @@ const Footer: React.FC<FooterProps> = ({
                   key={social.id}
                   href={social.href}
                   aria-label={social.label}
-                  className="h-9 min-w-9 px-3 rounded-xl bg-white hover:bg-[#dc2626] border border-orange-200/80 hover:border-[#dc2626] text-xs font-bold text-stone-700 hover:text-white inline-flex items-center justify-center shadow-2xs transition-all duration-200"
+                  className="h-9 w-9 rounded-xl bg-white hover:bg-[#dc2626] border border-orange-200/80 hover:border-[#dc2626] text-stone-700 hover:text-white inline-flex items-center justify-center shadow-2xs transition-all duration-200"
                 >
                   {social.shortCode}
                 </a>

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter,usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Pizza, Menu } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -26,6 +26,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { authClient, useSession } from "@/lib/auth-client";
 import { toast } from "sonner";
+import Image from "next/image";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -72,10 +73,7 @@ export default function Navbar() {
             className="flex items-center gap-3 shrink-0"
           >
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#dc2626] to-[#f97316] flex items-center justify-center shadow-md shadow-red-500/20">
-              <Pizza
-                className="w-5 h-5 text-white -rotate-12"
-                strokeWidth={2.2}
-              />
+             <Image src={'/PizzaHub.png'} height={40} width={40} alt="pizzahub-logo"/>
             </div>
             <div className="flex flex-col">
               <span className="text-lg sm:text-xl font-extrabold tracking-tight leading-none text-gray-900">
@@ -234,7 +232,7 @@ export default function Navbar() {
                   <SheetHeader className="text-left pb-6 border-b border-orange-200/70">
                     <SheetTitle className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#dc2626] to-[#f97316] flex items-center justify-center">
-                        <Pizza className="w-5 h-5 text-white -rotate-12" />
+                        <Image src={'/PizzaHub.png'} height={40} width={40} alt="pizzahub-logo"/>
                       </div>
                       <span className="text-lg font-extrabold tracking-tight text-gray-900">
                         Pizza<span className="text-[#dc2626]">Hub</span>

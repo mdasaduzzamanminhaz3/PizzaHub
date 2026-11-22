@@ -4,7 +4,6 @@ import React, { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  Pizza,
   ShoppingBag,
   Store,
   Lock,
@@ -134,7 +133,7 @@ export default function SignUpPage() {
       <Card className="w-full max-w-lg rounded-3xl border-orange-200/80 bg-white shadow-lg shadow-orange-950/5">
         <CardHeader className="text-center space-y-2 pt-7">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#dc2626] to-[#f97316] text-white shadow-sm">
-            <Pizza className="h-6 w-6 -rotate-12" />
+            <Image src={'/PizzaHub.png'} height={40} width={40} alt="pizzahub-logo"/>
           </div>
           <CardTitle className="text-2xl font-extrabold text-stone-950">
             Create Your Pizza<span className="text-[#dc2626]">Hub</span> Account

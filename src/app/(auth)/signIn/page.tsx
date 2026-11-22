@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
+import Image from "next/image";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -81,7 +82,7 @@ export default function SignInPage() {
       <Card className="w-full max-w-md rounded-3xl border-orange-200/80 bg-white shadow-lg shadow-orange-950/5">
         <CardHeader className="text-center space-y-2 pt-7">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#dc2626] to-[#f97316] text-white shadow-sm">
-            <Pizza className="h-6 w-6 -rotate-12" />
+           <Image src={'/PizzaHub.png'} height={40} width={40} alt="pizzahub-logo"/>
           </div>
           <CardTitle className="text-2xl font-extrabold text-stone-950">
             Welcome Back to Pizza<span className="text-[#dc2626]">Hub</span>
