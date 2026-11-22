@@ -40,7 +40,12 @@ export default function Navbar() {
   const [activeLink, setActiveLink] = useState("Home");
   const [isOpen, setIsOpen] = useState(false);
 
-  const user = session?.user;
+  const user = session?.user as
+  | (typeof session extends null | undefined
+      ? never
+      : NonNullable<typeof session>["user"] & { role?: string })
+  | undefined;
+  const settingsHref = user?.role ? `/dashboard/${user.role}/settings` : "/dashboard";
 
   const handleLogout = async () => {
     await authClient.signOut();
@@ -165,7 +170,7 @@ export default function Navbar() {
   <DropdownMenuItem render={<Link href="/dashboard" className="cursor-pointer rounded-xl" />}>
     Dashboard
   </DropdownMenuItem>
-  <DropdownMenuItem render={<Link href={`dashboard/${user.role}/settings`} className="cursor-pointer rounded-xl" />}>
+  <DropdownMenuItem render={<Link href={settingsHref} className="cursor-pointer rounded-xl" />}>
     Profile Settings
   </DropdownMenuItem>
 
@@ -285,7 +290,7 @@ export default function Navbar() {
                           Dashboard
                         </Link>
                         <Link
-                          href={`dashboard/${user.role}/settings`}
+                          href={settingsHref}
                           onClick={() => setIsOpen(false)}
                           className="px-4 py-3 rounded-2xl text-base font-semibold text-stone-700 hover:bg-orange-100/50"
                         >

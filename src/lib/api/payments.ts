@@ -15,7 +15,7 @@ export const getUserPaymentsById = async (userId: string) => {
 };
 
 export const getAllPaymentsAdmin = async () => {
-  const res = await authFetch(`${BASE_URL}/payments`, { cache: "no-store" });
+  const res = await authFetch(`${BASE_URL}/payments`);
   if (!res.ok) return [];
   const data = await res.json();
   return Array.isArray(data) ? data : [];

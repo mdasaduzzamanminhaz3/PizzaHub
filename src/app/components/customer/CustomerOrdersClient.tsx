@@ -32,9 +32,11 @@ const handleCancelOrder = async (orderId: string) => {
     return;
   }
 
-  setOrders((prev) =>
+setOrders((prev) =>
     prev.map((item) =>
-      item.id === orderId ? { ...item, status: "Cancelled" } : item
+      item.id === orderId
+        ? { ...item, status: "Cancelled" as PizzaOrderItem["status"] }
+        : item
     )
   );
 
