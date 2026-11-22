@@ -47,15 +47,19 @@ export const getCurrentVendor = async () => {
     isVendorPremium: Boolean(dbUser?.premium),
   };
 };
-export const getVendorMenuItems = async() => {
-    const session = await getSession();
-    const vendorId = session?.user.id;
-    if(!vendorId){
-        return []
-    }
-    const res = await fetch(`${BASE_URL}/menuItems?vendorId=${encodeURIComponent(vendorId)}`);
-    return res.json()
-}
+export const getVendorMenuItems = async () => {
+  const session = await getSession();
+  const vendorId = session?.user?.id;
+  if (!vendorId) {
+    return [];
+  }
+  const res = await fetch(
+    `${BASE_URL}/menuItems?vendorId=${vendorId}`,
+    { cache: "no-store" }
+  );
+  if (!res.ok) return [];
+  return res.json();
+};
 
 export const getAllMenuItemsAdmin = async()=> {
     const res = await fetch(`${BASE_URL}/menuItems?admin=true`);

@@ -1,11 +1,7 @@
+"use client";
+
 import React from "react";
-import {
-  UtensilsCrossed,
-  CheckCircle2,
-  Clock,
-  Flame,
-  Crown,
-} from "lucide-react";
+import { Pizza, CheckCircle2, Clock, BadgeCheck, Crown } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -14,23 +10,24 @@ export interface VendorOverviewStats {
   activeApproved: number;
   pendingOrders: number;
   acceptedOrders: number;
-  currentPlan: string;
+  currentPlan: "Free" | "Pro" | string;
 }
 
-export default function VendorStatCards({
-  stats,
-}: {
+interface VendorStatCardsProps {
   stats: VendorOverviewStats;
-}) {
+}
+
+export default function VendorStatCards({ stats }: VendorStatCardsProps) {
+  const isPro = String(stats.currentPlan).toLowerCase() === "pro";
+
   const cards = [
     {
-      label: "TOTAL ITEMS",
+      label: "TOTAL MENU ITEMS",
       value: stats.totalItems,
-      icon: UtensilsCrossed,
+      icon: Pizza,
       valueColor: "text-stone-950",
-      badgeBg: "bg-stone-100 text-stone-700",
+      badgeBg: "bg-orange-100 text-[#dc2626]",
       cardTint: "bg-white border-orange-200/80",
-      labelColor: "text-stone-500",
     },
     {
       label: "ACTIVE APPROVED",
@@ -38,8 +35,7 @@ export default function VendorStatCards({
       icon: CheckCircle2,
       valueColor: "text-emerald-600",
       badgeBg: "bg-emerald-100/80 text-emerald-700",
-      cardTint: "bg-white border-orange-200/80",
-      labelColor: "text-stone-500",
+      cardTint: "bg-[#F4FBF7] border-emerald-200/80",
     },
     {
       label: "PENDING ORDERS",
@@ -47,26 +43,27 @@ export default function VendorStatCards({
       icon: Clock,
       valueColor: "text-amber-600",
       badgeBg: "bg-amber-100/80 text-amber-700",
-      cardTint: "bg-white border-orange-200/80",
-      labelColor: "text-stone-500",
+      cardTint: "bg-[#FFFBF2] border-amber-200/80",
     },
     {
       label: "ACCEPTED ORDERS",
       value: stats.acceptedOrders,
-      icon: Flame,
-      valueColor: "text-[#dc2626]",
-      badgeBg: "bg-red-100/80 text-[#dc2626]",
-      cardTint: "bg-white border-orange-200/80",
-      labelColor: "text-stone-500",
+      icon: BadgeCheck,
+      valueColor: "text-sky-700",
+      badgeBg: "bg-sky-100/80 text-sky-700",
+      cardTint: "bg-[#F4F9FE] border-sky-200/80",
     },
     {
       label: "CURRENT PLAN",
-      value: stats.currentPlan,
+      value: stats.currentPlan || "Free",
       icon: Crown,
-      valueColor: "text-stone-950",
-      badgeBg: "bg-amber-100 text-amber-700",
-      cardTint: "bg-[#FFFBEB] border-amber-300/80",
-      labelColor: "text-amber-800",
+      valueColor: isPro ? "text-amber-600" : "text-stone-800",
+      badgeBg: isPro
+        ? "bg-amber-100 text-amber-700"
+        : "bg-stone-100 text-stone-700",
+      cardTint: isPro
+        ? "bg-[#FFFBF2] border-amber-300/80"
+        : "bg-white border-orange-200/80",
     },
   ];
 
@@ -84,12 +81,7 @@ export default function VendorStatCards({
           >
             <CardContent className="p-5">
               <div className="flex items-center justify-between gap-2">
-                <span
-                  className={cn(
-                    "text-[11px] font-bold uppercase tracking-wider",
-                    item.labelColor
-                  )}
-                >
+                <span className="text-[11px] font-bold uppercase tracking-wider text-stone-500">
                   {item.label}
                 </span>
                 <span
@@ -101,6 +93,7 @@ export default function VendorStatCards({
                   <Icon className="h-4 w-4" />
                 </span>
               </div>
+
               <p
                 className={cn(
                   "mt-3 text-3xl font-black tracking-tight",

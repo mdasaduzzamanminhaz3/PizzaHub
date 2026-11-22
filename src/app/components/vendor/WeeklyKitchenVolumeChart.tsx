@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import {
   Card,
@@ -22,13 +22,13 @@ export interface KitchenVolumePoint {
 }
 
 const defaultKitchenData: KitchenVolumePoint[] = [
-  { day: "Mon", orders: 470 },
-  { day: "Tue", orders: 610 },
-  { day: "Wed", orders: 560 },
-  { day: "Thu", orders: 890 },
-  { day: "Fri", orders: 1380 },
-  { day: "Sat", orders: 1710 },
-  { day: "Sun", orders: 1240 },
+  { day: "Mon", orders: 0 },
+  { day: "Tue", orders: 0 },
+  { day: "Wed", orders: 0 },
+  { day: "Thu", orders: 0 },
+  { day: "Fri", orders: 0 },
+  { day: "Sat", orders: 0 },
+  { day: "Sun", orders: 0 },
 ];
 
 const chartConfig = {
@@ -43,6 +43,37 @@ export default function WeeklyKitchenVolumeChart({
 }: {
   data?: KitchenVolumePoint[];
 }) {
+  const chartData = data.length > 0 ? data : defaultKitchenData;
+
+  const busiestDay = useMemo(() => {
+    let top = chartData[0];
+    for (const point of chartData) {
+      if ((point.orders || 0) > (top?.orders || 0)) {
+        top = point;
+      }
+    }
+    return top && top.orders > 0 ? top.day : "Sat";
+  }, [chartData]);
+
+  const { maxY, ticks } = useMemo(() => {
+    const highest = Math.max(0, ...chartData.map((d) => Number(d.orders) || 0));
+    if (highest <= 10) {
+      return { maxY: 10, ticks: [0, 2, 5, 8, 10] };
+    }
+    if (highest <= 50) {
+      const top = Math.ceil(highest / 10) * 10;
+      return {
+        maxY: top,
+        ticks: [0, Math.round(top * 0.25), Math.round(top * 0.5), Math.round(top * 0.75), top],
+      };
+    }
+    const top = Math.ceil(highest / 100) * 100;
+    return {
+      maxY: top,
+      ticks: [0, Math.round(top * 0.25), Math.round(top * 0.5), Math.round(top * 0.75), top],
+    };
+  }, [chartData]);
+
   return (
     <Card className="rounded-3xl border-orange-200/80 bg-white shadow-sm shadow-orange-950/5">
       <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-2">
@@ -56,14 +87,14 @@ export default function WeeklyKitchenVolumeChart({
         </div>
         <span className="inline-flex w-fit items-center gap-2 rounded-full bg-[#FAF7F2] border border-orange-200/70 px-3 py-1 text-xs font-semibold text-stone-700">
           <span className="h-2.5 w-2.5 rounded-full bg-[#dc2626]" />
-          Busiest: Sat
+          Busiest: {busiestDay}
         </span>
       </CardHeader>
 
       <CardContent className="pt-2">
         <ChartContainer config={chartConfig} className="h-72 w-full">
           <AreaChart
-            data={data}
+            data={chartData}
             margin={{ top: 12, right: 14, left: -10, bottom: 0 }}
           >
             <defs>
@@ -92,8 +123,9 @@ export default function WeeklyKitchenVolumeChart({
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              domain={[0, 1800]}
-              ticks={[0, 450, 900, 1350, 1800]}
+              domain={[0, maxY]}
+              ticks={ticks}
+              allowDecimals={false}
               tick={{ fill: "#a8a29e", fontSize: 11, fontWeight: 500 }}
             />
 

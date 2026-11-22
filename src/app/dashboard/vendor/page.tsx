@@ -5,26 +5,101 @@ import { Plus } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import VendorStatCards, { VendorOverviewStats } from "@/app/components/vendor/VendorStatCards";
+import VendorStatCards, {
+  VendorOverviewStats,
+} from "@/app/components/vendor/VendorStatCards";
 import WeeklyKitchenVolumeChart from "@/app/components/vendor/WeeklyKitchenVolumeChart";
+import { getUserById } from "@/lib/api/users";
+import { getVendorMenuItems } from "@/lib/actions/menuItems";
 
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+
+const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
+
+const getDayName = (dateValue: unknown) => {
+  if (!dateValue) return null;
+  const date = new Date(String(dateValue));
+  if (Number.isNaN(date.getTime())) return null;
+  const dayMap = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
+  return dayMap[date.getDay()];
+};
+
+async function getVendorOrders(vendorId: string) {
+  if (!vendorId) return [];
+  try {
+    const res = await fetch(
+      `${BASE_URL}/orders?vendorId=${encodeURIComponent(vendorId)}`,
+      { cache: "no-store" }
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
 
 export default async function VendorDashboardPage() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
-  const pizzeriaName = session?.user?.name
-    ? `${session.user.name}'s Pizzeria`
-    : "Crust & Craft Pizzeria";
+  const vendorId = session?.user?.id || "";
+
+  const [dbUser, rawMenuItems, rawOrders] = await Promise.all([
+    vendorId ? getUserById(vendorId) : Promise.resolve(null),
+    getVendorMenuItems(),
+    getVendorOrders(vendorId),
+  ]);
+
+  const menuItems = Array.isArray(rawMenuItems) ? rawMenuItems : [];
+  const orders = Array.isArray(rawOrders) ? rawOrders : [];
+
+  const vendorName = dbUser?.name || session?.user?.name || "";
+  const pizzeriaName =
+    dbUser?.restaurantName ||
+    dbUser?.businessName ||
+    (vendorName ? `${vendorName}'s Pizzeria` : "Crust & Craft Pizzeria");
 
   const stats: VendorOverviewStats = {
-    totalItems: 4,
-    activeApproved: 2,
-    pendingOrders: 1,
-    acceptedOrders: 0,
-    currentPlan: "Free",
+    totalItems: menuItems.length,
+    activeApproved: menuItems.filter(
+      (item: any) =>
+        String(item?.status || "").toLowerCase() === "approved" &&
+        item?.isActive !== false
+    ).length,
+    pendingOrders: orders.filter(
+      (ord: any) => String(ord?.status || "").toLowerCase() === "pending"
+    ).length,
+    acceptedOrders: orders.filter(
+      (ord: any) => String(ord?.status || "").toLowerCase() === "accepted"
+    ).length,
+    currentPlan: dbUser?.premium ? "Pro" : "Free",
   };
+
+  const counts: Record<string, number> = {
+    Mon: 0,
+    Tue: 0,
+    Wed: 0,
+    Thu: 0,
+    Fri: 0,
+    Sat: 0,
+    Sun: 0,
+  };
+
+  for (const ord of orders) {
+    const day = getDayName(ord?.createdAt || ord?.deliveryDate);
+    if (day) {
+      counts[day] += Number(ord?.quantity || 1);
+    }
+  }
+
+  const volumeData = DAYS.map((day) => ({
+    day,
+    orders: counts[day],
+    volume: counts[day],
+  }));
 
   return (
     <div className="space-y-6">
@@ -55,7 +130,7 @@ export default async function VendorDashboardPage() {
       <VendorStatCards stats={stats} />
 
       {/* Separated Weekly Kitchen Order Volume Chart Component */}
-      <WeeklyKitchenVolumeChart />
+      <WeeklyKitchenVolumeChart data={volumeData} />
     </div>
   );
 }
