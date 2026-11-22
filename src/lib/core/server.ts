@@ -2,6 +2,7 @@
 import { headers } from "next/headers";
 import { auth } from "../auth";
 import { redirect } from "next/navigation";
+import { getUserById } from "../api/users";
 
 
 export const getSession = async()=> {
@@ -24,6 +25,10 @@ export const requireRole = async(role:string)=> {
     if(!session || session?.user.role !== role){
         redirect('/unauthorized')
     }
+    const dbUser = await getUserById(session.user.id);
+    if (Boolean(dbUser?.isBlocked)) {
+    redirect("/unauthorized");
+  }
     return session
 }
 

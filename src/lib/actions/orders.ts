@@ -19,11 +19,45 @@ export interface CreateOrderPayload {
   instructions?: string;
 }
 
+function isNextRedirectError(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const err = error as { digest?: string; message?: string };
+  return (
+    (typeof err.digest === "string" && err.digest.startsWith("NEXT_REDIRECT")) ||
+    err.message === "NEXT_REDIRECT"
+  );
+}
+
 export const createPizzaOrder = async (payload: CreateOrderPayload) => {
   try {
     const session = await getSession();
     const userId = session?.user?.id || "";
-    const dbUser = userId ? await getUserById(userId) : null;
+
+    if (!userId) {
+      return {
+        success: false,
+        code: "UNAUTHORIZED",
+        message: "Please sign in first to place an order.",
+      };
+    }
+
+    const dbUser = await getUserById(userId);
+
+    if (Boolean(dbUser?.isBlocked)) {
+      return {
+        success: false,
+        code: "BLOCKED",
+        message: "Your account has been blocked by an admin.",
+      };
+    }
+
+    if (dbUser?.role && dbUser.role !== "customer") {
+      return {
+        success: false,
+        code: "FORBIDDEN",
+        message: "Only customer accounts can place pizza orders.",
+      };
+    }
 
     const orderData = {
       ...payload,
@@ -56,17 +90,39 @@ export const createPizzaOrder = async (payload: CreateOrderPayload) => {
       message: "Order Submitted!",
       data,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (isNextRedirectError(error)) {
+      throw error;
+    }
     console.error("Create order action error:", error);
     return {
       success: false,
-      message: error?.message || "Server connection error",
+      message: "Server connection error while placing order.",
     };
   }
 };
 
 export const cancelPizzaOrder = async (orderId: string) => {
   try {
+    const session = await getSession();
+    const userId = session?.user?.id || "";
+    if (!userId) {
+      return {
+        success: false,
+        code: "UNAUTHORIZED",
+        message: "Please sign in first.",
+      };
+    }
+
+    const dbUser = await getUserById(userId);
+    if (Boolean(dbUser?.isBlocked)) {
+      return {
+        success: false,
+        code: "BLOCKED",
+        message: "Your account has been blocked by an admin.",
+      };
+    }
+
     const api = `${BASE_URL}/orders/${orderId}/cancel`;
     const res = await protectedMutation(api, "PATCH", {});
     const data = await res.json().catch(() => ({}));
@@ -83,11 +139,14 @@ export const cancelPizzaOrder = async (orderId: string) => {
       message: "Order cancelled!",
       data,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (isNextRedirectError(error)) {
+      throw error;
+    }
     console.error("Cancel order action error:", error);
     return {
       success: false,
-      message: error?.message || "Failed to cancel order",
+      message: "Failed to cancel order",
     };
   }
 };
@@ -97,6 +156,25 @@ const updateOrderStatus = async (
   status: "Accepted" | "Rejected"
 ) => {
   try {
+    const session = await getSession();
+    const userId = session?.user?.id || "";
+    if (!userId) {
+      return {
+        success: false,
+        code: "UNAUTHORIZED",
+        message: "Please sign in first.",
+      };
+    }
+
+    const dbUser = await getUserById(userId);
+    if (Boolean(dbUser?.isBlocked)) {
+      return {
+        success: false,
+        code: "BLOCKED",
+        message: "Your account has been blocked by an admin.",
+      };
+    }
+
     const res = await protectedMutation(
       `${BASE_URL}/orders/${orderId}/status`,
       "PATCH",
@@ -117,11 +195,14 @@ const updateOrderStatus = async (
       message: `Order ${status.toLowerCase()}!`,
       data,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (isNextRedirectError(error)) {
+      throw error;
+    }
     console.error("Update order status action error:", error);
     return {
       success: false,
-      message: error?.message || "Something went wrong",
+      message: "Something went wrong",
     };
   }
 };

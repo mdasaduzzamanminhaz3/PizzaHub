@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   MapPin,
   Crown,
@@ -20,13 +21,17 @@ interface MenuItemDetailsViewProps {
   item: MenuItem;
   defaultAddress?: string;
   defaultPhone?: string;
+  isAuthenticated?: boolean;
 }
 
 export default function MenuItemDetailsView({
   item,
   defaultAddress = "",
   defaultPhone = "",
+  isAuthenticated = false,
 }: MenuItemDetailsViewProps) {
+  const router = useRouter();
+
   const galleryImages = [
     item.image,
     "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=900&q=80",
@@ -43,8 +48,19 @@ export default function MenuItemDetailsView({
 
   const orderTotal = (Number(item.price) * quantity).toFixed(2);
 
+  const redirectToSignIn = () => {
+    toast.error("Please sign in first to place a pizza order.");
+    const callbackUrl = item._id ? `/menu/${item._id}` : "/menu";
+    router.push(`/signIn?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+  };
+
   const handleSubmitOrder = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!isAuthenticated) {
+      redirectToSignIn();
+      return;
+    }
 
     if (!deliveryDate || !deliveryAddress) {
       toast.error("Please fill in delivery date and delivery address.");
@@ -53,31 +69,45 @@ export default function MenuItemDetailsView({
 
     setIsSubmitting(true);
 
-    const res = await createPizzaOrder({
-      menuItemId: item._id || "",
-      itemName: item.name,
-      image: item.image || "",
-      vendorId: item.vendorId || "",
-      quantity,
-      unitPrice: Number(item.price),
-      totalAmount: Number(orderTotal),
-      deliveryDate,
-      deliveryAddress,
-      customerPhone,
-      instructions,
-    });
+    try {
+      const res = await createPizzaOrder({
+        menuItemId: item._id || "",
+        itemName: item.name,
+        image: item.image || "",
+        vendorId: item.vendorId || "",
+        quantity,
+        unitPrice: Number(item.price),
+        totalAmount: Number(orderTotal),
+        deliveryDate,
+        deliveryAddress,
+        customerPhone,
+        instructions,
+      });
 
-    setIsSubmitting(false);
+      setIsSubmitting(false);
 
-    if (!res?.success) {
-      toast.error(res?.message || "Failed to place order");
-      return;
+      if (!res?.success) {
+        if (
+          res?.code === "UNAUTHORIZED" ||
+          res?.message?.toLowerCase().includes("unauthorized") ||
+          res?.message?.toLowerCase().includes("sign in")
+        ) {
+          redirectToSignIn();
+          return;
+        }
+
+        toast.error(res?.message || "Failed to place order");
+        return;
+      }
+
+      toast.success("Order Submitted!");
+      setQuantity(1);
+      setDeliveryDate("");
+      setInstructions("");
+    } catch (error) {
+      setIsSubmitting(false);
+      toast.error("Something went wrong while placing order.");
     }
-
-    toast.success("Order Submitted!");
-    setQuantity(1);
-    setDeliveryDate("");
-    setInstructions("");
   };
 
   return (
@@ -108,7 +138,7 @@ export default function MenuItemDetailsView({
             {galleryImages.map((imgUrl, idx) => {
               const isActive = selectedImage === imgUrl;
               return (
-<button
+                <button
                   key={idx}
                   type="button"
                   onClick={() => setSelectedImage(imgUrl)}
@@ -334,7 +364,11 @@ export default function MenuItemDetailsView({
           >
             <ShoppingBag className="w-4 h-4" />
             <span>
-              {isSubmitting ? "Submitting Order..." : "Submit Pizza Order"}
+              {isSubmitting
+                ? "Submitting Order..."
+                : isAuthenticated
+                  ? "Submit Pizza Order"
+                  : "Sign In to Place Order"}
             </span>
           </button>
         </form>

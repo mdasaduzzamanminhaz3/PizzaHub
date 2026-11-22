@@ -2,28 +2,28 @@ import React from "react";
 import Link from "next/link";
 import { ArrowLeft, Pizza } from "lucide-react";
 import { getMenuItemById } from "@/lib/api/menuItems";
-import { getSession } from "@/lib/core/server";
-import { getUserById } from "@/lib/api/users";
 import MenuItemDetailsView from "@/components/BrowseMenu/MenuItemDetailsView";
 import { notFound } from "next/navigation";
+import { getVerifiedUser } from "@/lib/core/auth-guard";
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
+
 const isValidObjectId = (id: string) => /^[a-fA-F0-9]{24}$/.test(id);
+
 const MenuItemDetailsPage = async ({ params }: PageProps) => {
   const { id } = await params;
   if (!id || !isValidObjectId(id)) {
     notFound();
   }
-  const [item, session] = await Promise.all([
+
+  const [item, { session, dbUser, isBlocked }] = await Promise.all([
     getMenuItemById(id),
-    getSession(),
+    getVerifiedUser(),
   ]);
 
-  const dbUser = session?.user?.id
-    ? await getUserById(session.user.id)
-    : null;
+  const isAuthenticated = Boolean(session?.user) && !isBlocked;
 
   if (!item || !item._id) {
     return (
@@ -67,6 +67,7 @@ const MenuItemDetailsPage = async ({ params }: PageProps) => {
           item={item}
           defaultAddress={dbUser?.address || ""}
           defaultPhone={dbUser?.phone || ""}
+          isAuthenticated={isAuthenticated}
         />
       </div>
     </section>

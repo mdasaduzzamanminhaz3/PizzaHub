@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Search, Filter, MapPin, RotateCcw } from "lucide-react";
+import { Search, Filter, MapPin, ArrowUpDown, RotateCcw } from "lucide-react";
 
 const defaultCategories = [
   "All Categories",
@@ -22,6 +22,12 @@ const defaultLocations = [
   "Uttara",
 ];
 
+const sortOptions = [
+  { label: "Sort: Default", value: "default" },
+  { label: "Price: Low to High", value: "price-asc" },
+  { label: "Price: High to Low", value: "price-desc" },
+];
+
 export default function MenuFilterBar({
   categories = defaultCategories,
   locations = defaultLocations,
@@ -35,6 +41,7 @@ export default function MenuFilterBar({
   const searchQuery = searchParams.get("search") || "";
   const selectedCategory = searchParams.get("category") || "All Categories";
   const selectedLocation = searchParams.get("location") || "All Locations";
+  const selectedSort = searchParams.get("sort") || "default";
 
   const updateQuery = (key: string, value: string, defaultVal: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -50,12 +57,14 @@ export default function MenuFilterBar({
   const hasActiveFilters =
     searchQuery !== "" ||
     selectedCategory !== "All Categories" ||
-    selectedLocation !== "All Locations";
+    selectedLocation !== "All Locations" ||
+    selectedSort !== "default";
 
   return (
     <div className="rounded-2xl bg-white p-3.5 sm:p-4 border border-orange-200/75 shadow-sm mb-9">
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
-        <div className="relative md:col-span-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3">
+        {/* Search Input */}
+        <div className="relative sm:col-span-2 lg:col-span-4">
           <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
@@ -66,7 +75,8 @@ export default function MenuFilterBar({
           />
         </div>
 
-        <div className="relative md:col-span-3">
+        {/* Category Filter */}
+        <div className="relative lg:col-span-3">
           <Filter className="w-4 h-4 text-[#dc2626] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <select
             value={selectedCategory}
@@ -84,7 +94,8 @@ export default function MenuFilterBar({
           </select>
         </div>
 
-        <div className="relative md:col-span-3">
+        {/* Location Filter */}
+        <div className="relative lg:col-span-3">
           <MapPin className="w-4 h-4 text-[#f97316] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <select
             value={selectedLocation}
@@ -97,6 +108,23 @@ export default function MenuFilterBar({
             {locations.map((location) => (
               <option key={location} value={location}>
                 {location}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Price Sort Select */}
+        <div className="relative sm:col-span-2 lg:col-span-2">
+          <ArrowUpDown className="w-4 h-4 text-[#dc2626] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <select
+            value={selectedSort}
+            onChange={(e) => updateQuery("sort", e.target.value, "default")}
+            aria-label="Sort by price"
+            className="w-full h-11 pl-10 pr-8 rounded-xl bg-[#FAF7F2] border border-orange-200/60 focus:border-[#dc2626] focus:bg-white focus:outline-none text-sm font-semibold text-stone-700 cursor-pointer transition-all"
+          >
+            {sortOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
               </option>
             ))}
           </select>

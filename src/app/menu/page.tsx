@@ -12,14 +12,15 @@ export default async function MenuPage({
     search?: string;
     category?: string;
     location?: string;
+    sort?: string;
   }>;
 }) {
   const params = await searchParams;
   const query = new URLSearchParams();
 
-  if (params.search){
-      query.set("search", params.search);
-    } 
+  if (params.search) {
+    query.set("search", params.search);
+  }
   if (params.category && params.category !== "All Categories") {
     query.set("category", params.category);
   }
@@ -27,12 +28,20 @@ export default async function MenuPage({
     query.set("location", params.location);
   }
 
-const menuItems: MenuItem[] = await getMenuItems(query.toString());
-const visibleMenuItems = Array.isArray(menuItems)
+  const menuItems: MenuItem[] = await getMenuItems(query.toString());
+
+  const visibleMenuItems = Array.isArray(menuItems)
     ? menuItems.filter(
         (item) => item.status === "Approved" && item.isActive === true
       )
     : [];
+
+  if (params.sort === "price-asc") {
+    visibleMenuItems.sort((a, b) => Number(a.price) - Number(b.price));
+  } else if (params.sort === "price-desc") {
+    visibleMenuItems.sort((a, b) => Number(b.price) - Number(a.price));
+  }
+
   return (
     <section id="menu" className="relative py-12 md:py-16 bg-[#FFFDFB]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -52,12 +61,16 @@ const visibleMenuItems = Array.isArray(menuItems)
 
           <div className="inline-flex items-center gap-2 self-start sm:self-end px-4 py-2 rounded-full bg-orange-50/90 border border-orange-200/70 text-xs font-bold text-stone-700">
             <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            <span>Showing {menuItems.length} dishes</span>
+            <span>Showing {visibleMenuItems.length} dishes</span>
           </div>
         </div>
 
         {/* Filter Bar */}
-        <Suspense fallback={<div className="h-24 rounded-2xl bg-white border border-orange-200/75 mb-9" />}>
+        <Suspense
+          fallback={
+            <div className="h-24 rounded-2xl bg-white border border-orange-200/75 mb-9" />
+          }
+        >
           <MenuFilterBar />
         </Suspense>
 
@@ -77,7 +90,8 @@ const visibleMenuItems = Array.isArray(menuItems)
               No matching pizzas found
             </h3>
             <p className="text-sm text-stone-500 max-w-md mx-auto">
-              Try clearing your search keyword or switching category and location filters.
+              Try clearing your search keyword or switching category and location
+              filters.
             </p>
           </div>
         )}
