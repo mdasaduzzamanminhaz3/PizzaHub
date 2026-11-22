@@ -85,62 +85,74 @@ export default function AddMenuItemForm() {
   };
 
 const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const form = e.currentTarget;
-  const formData = new FormData(form);
-  const rawData = Object.fromEntries(formData.entries());
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const rawData = Object.fromEntries(formData.entries());
 
-  const name = String(rawData.name || "").trim();
-  const description = String(rawData.description || "").trim();
-  const price = Number(rawData.price);
-  const image = uploadedImageUrl || imagePreview || "";
+    const name = String(rawData.name || "").trim();
+    const description = String(rawData.description || "").trim();
+    const price = Number(rawData.price);
+    const image = uploadedImageUrl || imagePreview || "";
 
-  if (!name || !price || !description) {
-    toast.error("Please fill out all required fields.");
-    return;
-  }
-
-  if (!image) {
-    toast.error("Please upload a pizza photo first.");
-    return;
-  }
-
-  try {
-    setSubmitting(true);
-    const { vendorId, vendorName } = await getCurrentVendor();
-
-    const payload = {
-      ...rawData,
-      name,
-      description,
-      price,
-      image,
-      vendorId,
-      vendorName,
-      status: "Pending",
-      isActive: true,
-      isFeatured: false,
-      createdAt: new Date(),
-    };
-
-    const result = await createMenuItem(payload);
-
-    if (result?.acknowledged) {
-      toast.success("Menu item submitted for Admin review!");
-      form.reset();
-      handleRemoveImage();
-    } else {
-      toast.error("Failed to save menu item.");
+    if (!name || !price || !description) {
+      toast.error("Please fill out all required fields.");
+      return;
     }
-  } catch (error) {
-    console.error("Create menu item error:", error);
-    toast.error("Something went wrong while submitting.");
-  } finally {
-    setSubmitting(false);
-  }
-};
 
+    if (!image) {
+      toast.error("Please upload a pizza photo first.");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      const {
+        vendorId,
+        vendorName,
+        vendorEmail,
+        restaurantName,
+        vendorPhone,
+        vendorAddress,
+        isVendorPremium,
+      } = await getCurrentVendor();
+
+      const payload = {
+        ...rawData,
+        name,
+        description,
+        price,
+        image,
+        vendorId,
+        vendorName,
+        vendorEmail,
+        restaurantName,
+        vendorPhone,
+        vendorAddress,
+        isVendorPremium,
+        status: "Pending",
+        isActive: true,
+        isFeatured: isVendorPremium,
+        createdAt: new Date(),
+      };
+
+      const result = await createMenuItem(payload);
+
+      if (result?.acknowledged) {
+        toast.success("Menu item submitted for Admin review!");
+        form.reset();
+        handleRemoveImage();
+      } else {
+        toast.error("Failed to save menu item.");
+      }
+    } catch (error) {
+      console.error("Create menu item error:", error);
+      toast.error("Something went wrong while submitting.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* Row 1: Item Name & Category */}

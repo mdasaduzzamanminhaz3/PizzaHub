@@ -7,6 +7,7 @@ const BASE_URL =
 
 export interface UpdateProfilePayload {
   name: string;
+  restaurantName?: string;
   address: string;
   phone: string;
   image?: string;
