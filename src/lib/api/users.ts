@@ -11,3 +11,11 @@ export const getUserPremiumById = async(userId:string)=> {
         return null
     }
 } 
+
+
+
+export const getUserById = async(userId:string)=> {
+    if(!userId) return null;
+    const res = await fetch(`${BASE_URL}/users/${userId}`);
+    return await res.json();
+}
