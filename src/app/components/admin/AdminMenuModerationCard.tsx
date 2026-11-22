@@ -14,6 +14,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 export type ModerationItemStatus = "Pending" | "Approved" | "Rejected";
 
@@ -76,14 +77,15 @@ export default function AdminMenuModerationCard({
       <CardContent className="p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
         {/* Left: Dish Image + Dish & Vendor Info */}
         <div className="flex items-start gap-4 min-w-0 flex-1">
-          <div className="h-20 w-24 sm:h-24 sm:w-28 shrink-0 overflow-hidden rounded-2xl border border-orange-200/70 bg-[#FAF7F2]">
-            <img
-              src={item.image}
+      <div className="relative h-20 w-24 sm:h-24 sm:w-28 shrink-0 overflow-hidden rounded-2xl border border-orange-200/70 bg-[#FAF7F2]">
+            <Image
+              src={item.image || "/PizzaHub.png"}
               alt={item.name}
+              fill
+              sizes="(max-width: 640px) 96px, 112px"
               className="h-full w-full object-cover"
             />
           </div>
-
           <div className="min-w-0 flex-1 space-y-1.5">
             {/* Title + Status + Price */}
             <div className="flex flex-wrap items-center gap-2">

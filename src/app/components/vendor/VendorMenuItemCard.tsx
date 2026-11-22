@@ -5,6 +5,7 @@ import { Trash2, EyeOff, Eye, AlertCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 export type MenuApprovalStatus = "Approved" | "Pending" | "Rejected";
 
@@ -62,14 +63,16 @@ export default function VendorMenuItemCard({
     >
       <CardContent className="p-4 flex items-center gap-4">
         {/* Square Thumbnail */}
-        <div className="relative h-20 w-20 sm:h-22 sm:w-22 shrink-0 overflow-hidden rounded-2xl border border-orange-200/70 bg-[#FAF7F2]">
-          <img
-            src={item.image}
+      <div className="relative h-20 w-20 sm:h-22 sm:w-22 shrink-0 overflow-hidden rounded-2xl border border-orange-200/70 bg-[#FAF7F2]">
+          <Image
+            src={item.image || "/PizzaHub.png"}
             alt={item.name}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            fill
+            sizes="(max-width: 640px) 80px, 88px"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
           {!item.isActive && item.status === "Approved" && (
-            <span className="absolute inset-x-0 bottom-0 bg-stone-900/75 py-0.5 text-center text-[10px] font-bold uppercase tracking-wider text-white">
+            <span className="absolute inset-x-0 bottom-0 z-10 bg-stone-900/75 py-0.5 text-center text-[10px] font-bold uppercase tracking-wider text-white">
               Inactive
             </span>
           )}

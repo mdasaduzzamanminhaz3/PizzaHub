@@ -5,6 +5,7 @@ import { MapPin, Calendar, Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 export type OrderStatus = "Pending" | "Accepted" | "Rejected";
 
@@ -67,14 +68,15 @@ export default function PizzaOrderCard({
       <CardContent className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* Left: Pizza Image + Order Details */}
         <div className="flex items-start sm:items-center gap-4 min-w-0">
-          <div className="relative h-20 w-24 sm:h-22 sm:w-28 shrink-0 overflow-hidden rounded-2xl border border-orange-200/70 bg-[#FAF7F2]">
-            <img
-              src={order.image}
+      <div className="relative h-20 w-24 sm:h-22 sm:w-28 shrink-0 overflow-hidden rounded-2xl border border-orange-200/70 bg-[#FAF7F2]">
+            <Image
+              src={order.image || "/PizzaHub.png"}
               alt={order.pizzaName}
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              fill
+              sizes="(max-width: 640px) 96px, 112px"
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
             />
           </div>
-
           <div className="min-w-0 space-y-1">
             {/* Title + Status Badge */}
             <div className="flex flex-wrap items-center gap-2.5">

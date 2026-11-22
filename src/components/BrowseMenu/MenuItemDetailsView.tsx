@@ -14,6 +14,7 @@ import {
 import type { MenuItem } from "@/types/home/menu.types";
 import { toast } from "sonner";
 import { createPizzaOrder } from "@/lib/actions/orders";
+import Image from "next/image";
 
 interface MenuItemDetailsViewProps {
   item: MenuItem;
@@ -85,27 +86,29 @@ export default function MenuItemDetailsView({
       <div className="lg:col-span-7 space-y-6">
         {/* Main Hero Photo */}
         <div className="relative overflow-hidden rounded-3xl bg-white border border-orange-200/70 shadow-sm aspect-[16/11]">
-          <img
-            src={selectedImage}
+          <Image
+            src={selectedImage || "/PizzaHub.png"}
             alt={item.name}
-            className="w-full h-full object-cover transition-transform duration-500 hover:scale-[1.02]"
+            fill
+            priority
+            sizes="(max-width: 1024px) 100vw, 58vw"
+            className="object-cover transition-transform duration-500 hover:scale-[1.02]"
           />
 
           {item.isFeatured && (
-            <div className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50/95 backdrop-blur-xs border border-amber-200 text-amber-800 text-xs font-extrabold shadow-xs">
+            <div className="absolute top-4 left-4 z-10 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50/95 backdrop-blur-xs border border-amber-200 text-amber-800 text-xs font-extrabold shadow-xs">
               <Crown className="w-3.5 h-3.5 text-amber-500" />
               <span>Featured Dish</span>
             </div>
           )}
         </div>
-
         {/* Thumbnails Row */}
         {galleryImages.length > 1 && (
           <div className="flex items-center gap-3">
             {galleryImages.map((imgUrl, idx) => {
               const isActive = selectedImage === imgUrl;
               return (
-                <button
+<button
                   key={idx}
                   type="button"
                   onClick={() => setSelectedImage(imgUrl)}
@@ -115,9 +118,11 @@ export default function MenuItemDetailsView({
                       : "border-orange-200/70 opacity-75 hover:opacity-100"
                   }`}
                 >
-                  <img
+                  <Image
                     src={imgUrl}
                     alt={`${item.name} preview ${idx + 1}`}
+                    width={80}
+                    height={64}
                     className="w-full h-full object-cover"
                   />
                 </button>

@@ -4,6 +4,7 @@ import React from "react";
 import { motion, type Variants } from "framer-motion";
 import { MapPin, Star, UtensilsCrossed, Crown } from "lucide-react";
 import type { PartnerPizzeria } from "@/types/pizzeria.types";
+import Image from "next/image";
 
 const defaultPizzerias: PartnerPizzeria[] = [
   {
@@ -95,9 +96,11 @@ export default function PartnerPizzeriasList({
               className="group rounded-3xl border border-orange-200/80 bg-white p-5 shadow-2xs transition-all hover:-translate-y-0.5 hover:shadow-md hover:shadow-orange-950/5"
             >
               <div className="flex items-start gap-4">
-                <img
+                <Image
                   src={pizzeria.avatarUrl}
                   alt={pizzeria.avatarAlt || pizzeria.name}
+                  height={64}
+                  width={64}
                   className="h-16 w-16 shrink-0 rounded-2xl object-cover border border-orange-200/70"
                 />
 

@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { updateUserProfile } from "@/lib/actions/profile";
+import Image from "next/image";
 
 interface ProfileSettingsViewProps {
   initialName?: string;
@@ -86,12 +87,14 @@ export default function ProfileSettingsView({
 
       {/* Avatar Row */}
       <div className="flex items-center gap-4 pt-1">
-        <img
+    <Image
           src={avatarUrl || DEFAULT_AVATAR}
           alt={fullName || "User avatar"}
+          width={56}
+          height={56}
+          unoptimized={avatarUrl.startsWith("data:")}
           className="h-14 w-14 rounded-2xl object-cover border border-orange-200/80 bg-[#FAF7F2]"
         />
-
         <label className="inline-flex h-9 items-center justify-center rounded-xl border border-stone-200 bg-white px-4 text-xs font-bold text-stone-700 hover:bg-[#FAF7F2] transition-colors cursor-pointer">
           <span>Change Avatar</span>
           <input

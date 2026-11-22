@@ -6,6 +6,7 @@ import { ArrowRight, Flame, CheckCircle2, Star } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { HeroProps } from '@/types/home/hero.types';
+import Image from 'next/image';
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 24 },
@@ -50,8 +51,8 @@ const Hero: React.FC<HeroProps> = ({
   titlePrefix = 'Hot & Fresh Pizza Delivered to',
   titleHighlight = 'Your Door',
   description = 'Discover top-rated neighborhood pizzerias, hand-stretched sourdough crusts, and gourmet toppings. Place scheduled or immediate delivery orders with real-time kitchen status updates.',
-  primaryAction = { label: 'Explore Pizza Menu', href: '#menu' },
-  secondaryAction = { label: 'Browse Pizzerias', href: '#pizzerias' },
+  primaryAction = { label: 'Explore Pizza Menu', href: '/menu' },
+  secondaryAction = { label: 'Browse Pizzerias', href: '/pizzerias' },
   features = defaultFeatures,
   featuredKitchen = defaultFeaturedKitchen,
 }) => {
@@ -147,14 +148,17 @@ const Hero: React.FC<HeroProps> = ({
             >
               <div className="absolute -inset-2 bg-gradient-to-tr from-orange-200/60 to-red-200/40 rounded-[2.25rem] blur-xl -z-10" />
 
-              <div className="relative overflow-hidden rounded-[2rem] border-4 border-white shadow-2xl bg-stone-900">
-                <img
-                  src={featuredKitchen.imageUrl}
+          <div className="relative h-[360px] sm:h-[420px] w-full overflow-hidden rounded-[2rem] border-4 border-white shadow-2xl bg-stone-900">
+                <Image
+                  src={featuredKitchen.imageUrl || '/PizzaHub.png'}
                   alt={featuredKitchen.imageAlt}
-                  className="w-full h-[360px] sm:h-[420px] object-cover transition-transform duration-500 hover:scale-105"
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 42vw"
+                  className="object-cover transition-transform duration-500 hover:scale-105"
                 />
 
-                <div className="absolute inset-x-4 bottom-4 rounded-2xl bg-stone-950/85 backdrop-blur-md border border-white/10 p-4 flex items-center justify-between gap-3">
+                <div className="absolute inset-x-4 bottom-4 z-10 rounded-2xl bg-stone-950/85 backdrop-blur-md border border-white/10 p-4 flex items-center justify-between gap-3">
                   <div>
                     <p className="text-[11px] font-bold uppercase tracking-wider text-amber-400">
                       {featuredKitchen.label}

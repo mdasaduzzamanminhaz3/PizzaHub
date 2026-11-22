@@ -4,6 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Crown, MapPin, Star, UtensilsCrossed } from 'lucide-react';
 import type { PartnerPizzeriaCardProps } from '@/types/pizzeria.types';
+import Image from 'next/image';
 
 const PartnerPizzeriaCard: React.FC<PartnerPizzeriaCardProps> = ({ pizzeria }) => {
   return (
@@ -20,9 +21,11 @@ const PartnerPizzeriaCard: React.FC<PartnerPizzeriaCardProps> = ({ pizzeria }) =
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3.5 min-w-0">
             <div className="relative shrink-0">
-              <img
+              <Image
                 src={pizzeria.avatarUrl}
                 alt={pizzeria.avatarAlt}
+                width={56}
+                height={56}
                 className="w-14 h-14 rounded-2xl object-cover ring-2 ring-orange-100 group-hover:ring-orange-200 transition-all"
               />
               <span

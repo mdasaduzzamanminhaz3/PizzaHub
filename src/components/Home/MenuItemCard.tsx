@@ -2,11 +2,12 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Crown, MapPin, Store } from 'lucide-react';
+import { ArrowRight, MapPin, Store } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { MenuItemCardProps } from '@/types/home/menu.types';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const MenuItemCard: React.FC<MenuItemCardProps> = ({ item }) => {
   return (
@@ -17,10 +18,12 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item }) => {
     >
       {/* Top Image Wrapper */}
       <div className="relative h-56 sm:h-60 w-full overflow-hidden bg-stone-100">
-        <img
-          src={item.image}
+      <Image
+          src={item.image || '/PizzaHub.png'}
           alt={item.name}
-          className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
         />
 
         {/* Subtle Dark Top Gradient for Badge Legibility */}

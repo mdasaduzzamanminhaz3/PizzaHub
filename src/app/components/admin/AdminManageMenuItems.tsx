@@ -7,6 +7,7 @@ import AdminMenuModerationCard, {
   ModerationItemStatus,
 } from "@/app/components/admin/AdminMenuModerationCard";
 import { deleteMenuItem, updateMenuItemStatus } from "@/lib/actions/menuItems";
+import Image from "next/image";
 
 interface AdminManageMenuItemsClientProps {
   initialItems: AdminMenuItem[];
@@ -168,14 +169,17 @@ export default function AdminManageMenuItemsClient({
             </div>
 
             {/* Dish Preview */}
-            {selectedItem.image && (
-              <img
-                src={selectedItem.image}
-                alt={selectedItem.name}
-                className="w-full h-44 object-cover rounded-2xl border border-orange-200/70"
-              />
+        {selectedItem.image && (
+              <div className="relative w-full h-44 overflow-hidden rounded-2xl border border-orange-200/70 bg-[#FAF7F2]">
+                <Image
+                  src={selectedItem.image}
+                  alt={selectedItem.name}
+                  fill
+                  sizes="(max-width: 640px) 100vw, 512px"
+                  className="object-cover"
+                />
+              </div>
             )}
-
             {/* Dish Info */}
             <div className="space-y-1.5 rounded-2xl bg-[#FAF7F2] p-4 text-xs text-stone-700 border border-orange-200/60">
               <p>
@@ -200,11 +204,13 @@ export default function AdminManageMenuItemsClient({
             {/* Vendor Full Information */}
             <div className="space-y-2 rounded-2xl bg-orange-50/50 p-4 text-xs text-stone-700 border border-orange-200/70">
               <div className="flex items-center gap-3 pb-1">
-                {selectedItem.vendorImage && (
-                  <img
+              {selectedItem.vendorImage && (
+                  <Image
                     src={selectedItem.vendorImage}
                     alt={selectedItem.vendorName || "Vendor"}
-                    className="h-10 w-10 rounded-xl object-cover border border-orange-200"
+                    width={40}
+                    height={40}
+                    className="h-10 w-10 shrink-0 rounded-xl object-cover border border-orange-200"
                   />
                 )}
                 <div>
