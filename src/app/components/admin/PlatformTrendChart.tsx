@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import {
   Card,
@@ -22,13 +22,13 @@ export interface PlatformTrendPoint {
 }
 
 const defaultTrendData: PlatformTrendPoint[] = [
-  { day: "Mon", activity: 24 },
-  { day: "Tue", activity: 31 },
-  { day: "Wed", activity: 28 },
-  { day: "Thu", activity: 42 },
-  { day: "Fri", activity: 65 },
-  { day: "Sat", activity: 79 },
-  { day: "Sun", activity: 59 },
+  { day: "Mon", activity: 0 },
+  { day: "Tue", activity: 0 },
+  { day: "Wed", activity: 0 },
+  { day: "Thu", activity: 0 },
+  { day: "Fri", activity: 0 },
+  { day: "Sat", activity: 0 },
+  { day: "Sun", activity: 0 },
 ];
 
 const chartConfig = {
@@ -43,6 +43,25 @@ export default function PlatformTrendChart({
 }: {
   data?: PlatformTrendPoint[];
 }) {
+  const chartData = data.length > 0 ? data : defaultTrendData;
+
+  const peakDay = useMemo(() => {
+    if (!chartData.length) return "Sat";
+    let best = chartData[0];
+    for (const point of chartData) {
+      if (point.activity > best.activity) {
+        best = point;
+      }
+    }
+    return best.activity > 0 ? best.day : "Sat";
+  }, [chartData]);
+
+  const maxY = useMemo(() => {
+    const highest = Math.max(0, ...chartData.map((d) => Number(d.activity) || 0));
+    if (highest <= 80) return 80;
+    return Math.ceil(highest / 20) * 20;
+  }, [chartData]);
+
   return (
     <Card className="rounded-3xl border-orange-200/80 bg-white shadow-sm shadow-orange-950/5">
       <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-2">
@@ -57,14 +76,14 @@ export default function PlatformTrendChart({
 
         <span className="inline-flex w-fit items-center gap-2 rounded-full bg-[#FAF7F2] border border-orange-200/70 px-3 py-1 text-xs font-semibold text-stone-700">
           <span className="h-2.5 w-2.5 rounded-full bg-[#dc2626]" />
-          Peak: Sat
+          Peak: {peakDay}
         </span>
       </CardHeader>
 
       <CardContent className="pt-2">
         <ChartContainer config={chartConfig} className="h-64 w-full">
           <AreaChart
-            data={data}
+            data={chartData}
             margin={{ top: 10, right: 14, left: -18, bottom: 0 }}
           >
             <defs>
@@ -99,8 +118,8 @@ export default function PlatformTrendChart({
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              domain={[0, 80]}
-              ticks={[0, 20, 40, 60, 80]}
+              domain={[0, maxY]}
+              allowDecimals={false}
               tick={{ fill: "#a8a29e", fontSize: 11, fontWeight: 500 }}
             />
 
