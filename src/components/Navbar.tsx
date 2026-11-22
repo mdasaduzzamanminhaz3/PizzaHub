@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter,usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { Pizza, Menu } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -36,6 +36,7 @@ const navLinks = [
 
 export default function Navbar() {
   const router = useRouter();
+  // const pathname = usePathname();
   const { data: session, isPending } = useSession();
   const [activeLink, setActiveLink] = useState("Home");
   const [isOpen, setIsOpen] = useState(false);
@@ -52,7 +53,7 @@ export default function Navbar() {
     setIsOpen(false);
     toast.success("Logged out successfully!");
     router.refresh();
-    router.push("/signIn");
+    window.location.assign("/signIn");
   };
 
   return (

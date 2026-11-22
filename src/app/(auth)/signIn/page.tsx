@@ -59,6 +59,7 @@ export default function SignInPage() {
       }
 
       setLoading(false);
+      window.location.assign("/");
       router.refresh();
       router.push("/");
     } catch (err) {
