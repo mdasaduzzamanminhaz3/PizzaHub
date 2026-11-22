@@ -3,10 +3,15 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import { Pizza, ShoppingBag, Clock, CheckCircle2, XCircle } from "lucide-react";
 import { auth } from "@/lib/auth";
+import { authFetch } from "@/lib/core/server";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import WeeklyCravingsChart, { CravingPoint } from "@/app/components/customer/WeeklyCravingsChart";
+import WeeklyCravingsChart, {
+  CravingPoint,
+} from "@/app/components/customer/WeeklyCravingsChart";
+
+export const dynamic = "force-dynamic";
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
@@ -36,9 +41,7 @@ async function getCustomerOrders(userId?: string, email?: string) {
     else if (email) params.set("customerEmail", email);
     else return [];
 
-    const res = await fetch(`${BASE_URL}/orders?${params.toString()}`, {
-      cache: "no-store",
-    });
+    const res = await authFetch(`${BASE_URL}/orders?${params.toString()}`);
     if (!res.ok) return [];
     const data = await res.json();
     return Array.isArray(data) ? data : [];
@@ -78,7 +81,7 @@ export default async function CustomerDashboardPage() {
     (o: any) => String(o?.status || "").toLowerCase() === "rejected"
   ).length;
 
-const cravingsByDay: Record<string, number> = {
+  const cravingsByDay: Record<string, number> = {
     Mon: 0,
     Tue: 0,
     Wed: 0,

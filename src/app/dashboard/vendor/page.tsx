@@ -10,10 +10,10 @@ import VendorStatCards, {
 } from "@/app/components/vendor/VendorStatCards";
 import WeeklyKitchenVolumeChart from "@/app/components/vendor/WeeklyKitchenVolumeChart";
 import { getUserById } from "@/lib/api/users";
+import { getVendorOrders } from "@/lib/api/orders";
 import { getVendorMenuItems } from "@/lib/actions/menuItems";
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+export const dynamic = "force-dynamic";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
 
@@ -25,21 +25,6 @@ const getDayName = (dateValue: unknown) => {
   return dayMap[date.getDay()];
 };
 
-async function getVendorOrders(vendorId: string) {
-  if (!vendorId) return [];
-  try {
-    const res = await fetch(
-      `${BASE_URL}/orders?vendorId=${encodeURIComponent(vendorId)}`,
-      { cache: "no-store" }
-    );
-    if (!res.ok) return [];
-    const data = await res.json();
-    return Array.isArray(data) ? data : [];
-  } catch {
-    return [];
-  }
-}
-
 export default async function VendorDashboardPage() {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -50,7 +35,7 @@ export default async function VendorDashboardPage() {
   const [dbUser, rawMenuItems, rawOrders] = await Promise.all([
     vendorId ? getUserById(vendorId) : Promise.resolve(null),
     getVendorMenuItems(),
-    getVendorOrders(vendorId),
+    vendorId ? getVendorOrders(vendorId) : Promise.resolve([]),
   ]);
 
   const menuItems = Array.isArray(rawMenuItems) ? rawMenuItems : [];

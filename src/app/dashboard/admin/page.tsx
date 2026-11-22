@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Clock } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { authFetch } from "@/lib/core/server";
 import AdminStatCards, {
   AdminOverviewStats,
 } from "@/app/components/admin/AdminStatCards";
@@ -12,6 +13,8 @@ import PlatformTrendChart, {
 import { getAllUsersAdmin } from "@/lib/actions/users";
 import { getAllMenuItemsAdmin } from "@/lib/actions/menuItems";
 import { getAllPaymentsAdmin } from "@/lib/api/payments";
+
+export const dynamic = "force-dynamic";
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
@@ -37,7 +40,7 @@ const getDayLabel = (rawDate: unknown): (typeof DAY_ORDER)[number] | null => {
 
 async function getAllOrdersAdmin() {
   try {
-    const res = await fetch(`${BASE_URL}/orders`, { cache: "no-store" });
+    const res = await authFetch(`${BASE_URL}/orders`);
     if (!res.ok) return [];
     const data = await res.json();
     return Array.isArray(data) ? data : [];
@@ -81,7 +84,6 @@ export default async function AdminDashboardPage() {
     totalTransactions: payments.length,
   };
 
-  // দিন অনুযায়ী Orders + Payments + MenuItems অ্যাক্টিভিটি গণনা
   const countsByDay: Record<string, number> = {
     Mon: 0,
     Tue: 0,
