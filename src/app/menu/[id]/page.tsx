@@ -5,13 +5,17 @@ import { getMenuItemById } from "@/lib/api/menuItems";
 import { getSession } from "@/lib/core/server";
 import { getUserById } from "@/lib/api/users";
 import MenuItemDetailsView from "@/components/BrowseMenu/MenuItemDetailsView";
+import { notFound } from "next/navigation";
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
-
+const isValidObjectId = (id: string) => /^[a-fA-F0-9]{24}$/.test(id);
 const MenuItemDetailsPage = async ({ params }: PageProps) => {
   const { id } = await params;
+  if (!id || !isValidObjectId(id)) {
+    notFound();
+  }
   const [item, session] = await Promise.all([
     getMenuItemById(id),
     getSession(),
