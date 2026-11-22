@@ -42,3 +42,13 @@ if(res.status===401 || res.status===403){
 }
 return res;
 }
+
+export const authFetch = async(api:string)=>{
+        const token = await getToken();
+        const res = await fetch(api,{
+            headers:{
+                authorization: `Bearer ${token}`
+            }
+        })
+        return res;
+    }

@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { CheckCircle2, XCircle } from "lucide-react";
+import { protectedMutation } from "@/lib/core/server";
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
@@ -18,16 +19,18 @@ export default async function PaymentSuccessPage({
   let message = "Invalid payment session.";
 
   if (session_id) {
+    const res = await protectedMutation(
+      `${BASE_URL}/payments/checkout-verify`,
+      "POST",
+      { sessionId: session_id }
+    );
+
     try {
-      const res = await fetch(`${BASE_URL}/payments/checkout-verify`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId: session_id }),
-        cache: "no-store",
-      });
       const data = await res.json();
       isVerified = Boolean(data?.success);
-      message = data?.message || (isVerified ? "Payment verified!" : "Verification failed.");
+      message =
+        data?.message ||
+        (isVerified ? "Payment verified!" : "Verification failed.");
     } catch (error) {
       console.error("Verify error:", error);
       message = "Could not connect to server for verification.";

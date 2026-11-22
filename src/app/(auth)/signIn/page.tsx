@@ -68,6 +68,13 @@ export default function SignInPage() {
     }
   };
 
+
+    const handleSignInGoogle = async () => {
+    await authClient.signIn.social({
+      provider: "google",
+      callbackURL: '/',
+    });
+  };
   return (
     <main className="min-h-[calc(100vh-5rem)] flex items-center justify-center bg-[#FFFDFB] px-4 py-10">
       <Card className="w-full max-w-md rounded-3xl border-orange-200/80 bg-white shadow-lg shadow-orange-950/5">
@@ -173,7 +180,7 @@ export default function SignInPage() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => console.log("Google Sign In")}
+            onClick={handleSignInGoogle}
             className="w-full h-11 rounded-xl border-orange-200/80 bg-white hover:bg-[#FAF7F2] text-stone-800 font-bold cursor-pointer"
           >
             <FcGoogle /> Continue with Google

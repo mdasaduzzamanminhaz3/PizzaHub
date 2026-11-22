@@ -1,8 +1,12 @@
+"use server"
+import { authFetch } from "../core/server";
+
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
 
 export const getCustomerOrders = async (userId: string) => {
   try {
-    const res = await fetch(`${BASE_URL}/orders?customerId=${userId}`);
+    const api =`${BASE_URL}/orders?customerId=${userId}` 
+    const res = await authFetch(api);
 
     if (!res.ok) {
       console.error("GET /orders failed with status:", res.status);
@@ -23,9 +27,8 @@ export const getCustomerOrders = async (userId: string) => {
 
 export const getVendorOrders = async (vendorId: string) => {
   try {
-    const res = await fetch(`${BASE_URL}/orders?vendorId=${vendorId}`, {
-      cache: "no-store",
-    });
+    const api = `${BASE_URL}/orders?vendorId=${vendorId}`
+    const res = await authFetch(api);
 
     if (!res.ok) {
       return [];

@@ -6,12 +6,12 @@ import { Pizza } from 'lucide-react';
 import type { CategorySectionProps, PizzaCategory } from '@/types/home/category.types';
 
 const defaultCategories: PizzaCategory[] = [
-  { id: 'classic', name: 'Classic Pizzas', itemCount: 1, href: '#menu?category=classic' },
-  { id: 'vegetarian', name: 'Vegetarian Pizzas', itemCount: 1, href: '#menu?category=vegetarian' },
-  { id: 'meat-lovers', name: 'Meat Lovers', itemCount: 2, href: '#menu?category=meat-lovers' },
+  { id: 'classic', name: 'Classic Pizzas', itemCount: 1, href: 'menu?category=classic' },
+  { id: 'vegetarian', name: 'Vegetarian Pizzas', itemCount: 1, href: 'menu?category=vegetarian' },
+  { id: 'meat-lovers', name: 'Meat Lovers', itemCount: 2, href: 'menu?category=meat-lovers' },
   { id: 'specialty', name: 'Specialty / Gourmet Pizzas', itemCount: 1, href: '#menu?category=specialty' },
-  { id: 'sides', name: 'Sides & Appetizers', itemCount: 1, href: '#menu?category=sides' },
-  { id: 'beverages', name: 'Beverages & Desserts', itemCount: 1, href: '#menu?category=beverages' },
+  { id: 'sides', name: 'Sides & Appetizers', itemCount: 1, href: 'menu?category=sides' },
+  { id: 'beverages', name: 'Beverages & Desserts', itemCount: 1, href: 'menu?category=beverages' },
 ];
 
 const containerVariants: Variants = {
@@ -86,7 +86,7 @@ const CategorySection: React.FC<CategorySectionProps> = ({
             return (
               <motion.a
                 key={category.id}
-                href={category.href || `#category-${category.id}`}
+                href={category.href || `category-${category.id}`}
                 variants={cardVariants}
                 whileHover={{ y: -5, scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
