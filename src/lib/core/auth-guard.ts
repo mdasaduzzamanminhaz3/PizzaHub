@@ -3,26 +3,21 @@ import { getUserById } from "@/lib/api/users";
 import { redirect } from "next/navigation";
 
 export async function getVerifiedUser() {
-  try {
-    const session = await getSession();
-    if (!session?.user?.id) {
-      return { session: null, dbUser: null, isBlocked: false };
-    }
-
-    let dbUser = null;
-    try {
-      dbUser = await getUserById(session.user.id);
-    } catch (userError) {
-      console.error("getUserById failed in getVerifiedUser:", userError);
-      return { session, dbUser: null, isBlocked: false };
-    }
-
-    const isBlocked = Boolean(dbUser?.isBlocked);
-    return { session, dbUser, isBlocked };
-  } catch (error) {
-    console.error("getVerifiedUser error:", error);
+  const session = await getSession();
+  if (!session?.user?.id) {
     return { session: null, dbUser: null, isBlocked: false };
   }
+
+  let dbUser = null;
+  try {
+    dbUser = await getUserById(session.user.id);
+  } catch (error) {
+    console.error("Failed to load dbUser in getVerifiedUser:", error);
+    return { session, dbUser: null, isBlocked: false };
+  }
+
+  const isBlocked = Boolean(dbUser?.isBlocked);
+  return { session, dbUser, isBlocked };
 }
 
 export async function requireActiveUser(redirectTo = "/unauthorized") {
