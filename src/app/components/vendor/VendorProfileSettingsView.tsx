@@ -19,6 +19,31 @@ interface VendorProfileSettingsViewProps {
 const DEFAULT_AVATAR =
   "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80";
 
+async function uploadToImgBB(file: File): Promise<string> {
+  const apiKey = process.env.NEXT_PUBLIC_IMAGEBB_API_KEY;
+  if (!apiKey) {
+    throw new Error("ImgBB API key is not configured.");
+  }
+
+  const formData = new FormData();
+  formData.append("image", file);
+
+  const response = await fetch(
+    `https://api.imgbb.com/1/upload?key=${encodeURIComponent(apiKey)}`,
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
+
+  const data = await response.json();
+  if (!response.ok || !data?.success || !data?.data?.url) {
+    throw new Error(data?.error?.message || "Failed to upload avatar.");
+  }
+
+  return data.data.url as string;
+}
+
 export default function VendorProfileSettingsView({
   initialName = "",
   initialRestaurantName = "",
@@ -34,19 +59,30 @@ export default function VendorProfileSettingsView({
   const [phone, setPhone] = useState(initialPhone);
   const [address, setAddress] = useState(initialAddress);
   const [avatarUrl, setAvatarUrl] = useState(initialAvatar || DEFAULT_AVATAR);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      if (typeof reader.result === "string") {
-        setAvatarUrl(reader.result);
-      }
-    };
-    reader.readAsDataURL(file);
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select a valid image file.");
+      e.target.value = "";
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+    try {
+      const uploadedUrl = await uploadToImgBB(file);
+      setAvatarUrl(uploadedUrl);
+      toast.success("Avatar uploaded!");
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to upload image.");
+    } finally {
+      setIsUploadingAvatar(false);
+      e.target.value = "";
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -54,6 +90,11 @@ export default function VendorProfileSettingsView({
 
     if (!fullName.trim()) {
       toast.error("Please enter your full name.");
+      return;
+    }
+
+    if (isUploadingAvatar) {
+      toast.error("Please wait for the image upload to finish.");
       return;
     }
 
@@ -100,13 +141,14 @@ export default function VendorProfileSettingsView({
           height={56}
           unoptimized={avatarUrl.startsWith("data:")}
           className="h-14 w-14 rounded-2xl object-cover border border-orange-200/80 bg-[#FAF7F2]"
-         />
+        />
 
         <label className="inline-flex h-9 items-center justify-center rounded-xl border border-stone-200 bg-white px-4 text-xs font-bold text-stone-700 hover:bg-[#FAF7F2] transition-colors cursor-pointer">
-          <span>Change Avatar</span>
+          <span>{isUploadingAvatar ? "Uploading..." : "Change Avatar"}</span>
           <input
             type="file"
             accept="image/*"
+            disabled={isUploadingAvatar || isSaving}
             onChange={handleAvatarChange}
             className="hidden"
           />
@@ -228,7 +270,7 @@ export default function VendorProfileSettingsView({
         <div className="pt-2">
           <button
             type="submit"
-            disabled={isSaving}
+            disabled={isSaving || isUploadingAvatar}
             className="h-11 px-6 rounded-xl bg-[#dc2626] hover:bg-[#b91c1c] disabled:opacity-60 active:scale-[0.99] text-white text-sm font-bold shadow-xs transition-all cursor-pointer"
           >
             {isSaving ? "Saving..." : "Save Changes"}
