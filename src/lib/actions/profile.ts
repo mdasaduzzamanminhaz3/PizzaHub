@@ -1,9 +1,11 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { getSession, protectedMutation } from "@/lib/core/server";
 
 const BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  "https://pizzahub-server-olive.vercel.app";
 
 export interface UpdateProfilePayload {
   name: string;
@@ -22,20 +24,29 @@ export const updateUserProfile = async (payload: UpdateProfilePayload) => {
       return { success: false, message: "Unauthorized session." };
     }
 
-    const res = await protectedMutation(
+    const res: any = await protectedMutation(
       `${BASE_URL}/users/${userId}`,
       "PATCH",
       payload
     );
 
-    if (typeof (res as any)?.ok === "boolean" && !res.ok) {
+    if (res && typeof res.ok === "boolean" && !res.ok) {
       const errorData = await res.json().catch(() => ({}));
       return {
         success: false,
-        message: errorData?.message || "Failed to update profile.",
+        message:
+          errorData?.message || `Failed to update profile (${res.status}).`,
       };
     }
 
+    if (res && typeof res === "object" && res.success === false) {
+      return {
+        success: false,
+        message: res.message || "Failed to update profile.",
+      };
+    }
+
+    revalidatePath("/dashboard");
     return { success: true, message: "Profile updated!" };
   } catch (error: any) {
     return {
