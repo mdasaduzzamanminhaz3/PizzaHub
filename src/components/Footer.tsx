@@ -17,19 +17,19 @@ const defaultSocials: FooterSocialItem[] = [
     id: 'x',
     label: 'X (Twitter)',
     shortCode: <FaXTwitter className="w-4 h-4" />,
-    href: '#x',
+    href: 'https://x.com/',
   },
   {
     id: 'ig',
     label: 'Instagram',
     shortCode: <FaInstagram className="w-4 h-4" />,
-    href: '#instagram',
+    href: 'https://www.instagram.com/',
   },
   {
     id: 'fb',
     label: 'Facebook',
     shortCode: <FaFacebook className="w-4 h-4" />,
-    href: '#facebook',
+    href: 'https://www.facebook.com/',
   },
 ];
 
@@ -41,10 +41,10 @@ const defaultExploreLinks: FooterLinkItem[] = [
 ];
 
 const defaultCompanyLinks: FooterLinkItem[] = [
-  { label: 'About PizzaHub', href: '#about' },
-  { label: 'Help & FAQ', href: '#faq' },
-  { label: 'Contact Support', href: '#support' },
-  { label: 'Privacy Policy & Terms', href: '#legal' },
+  { label: 'About PizzaHub', href: '/about' },
+  { label: 'Help & FAQ', href: '/help' },
+  { label: 'Contact Support', href: '/contact' },
+  { label: 'Privacy Policy & Terms', href: '/privacy' },
 ];
 
 const defaultContact: FooterContactInfo = {
@@ -52,12 +52,6 @@ const defaultContact: FooterContactInfo = {
   phone: '+880 9612-749924 (10 AM – 11 PM)',
   email: 'support@pizzahub.com',
 };
-
-const defaultBottomLinks: FooterLinkItem[] = [
-  { label: 'Test 404 Page', href: '/404' },
-  { label: 'Test 403 Page', href: '/403' },
-  { label: 'Test Error Boundary', href: '#error-boundary' },
-];
 
 const Footer: React.FC<FooterProps> = ({
   brandName = 'Pizza',
@@ -68,7 +62,6 @@ const Footer: React.FC<FooterProps> = ({
   companyLinks = defaultCompanyLinks,
   contact = defaultContact,
   copyrightText = '© 2026 PizzaHub Technologies Ltd. All rights reserved.',
-  bottomLinks = defaultBottomLinks,
 }) => {
   return (
     <footer className="bg-[#FFF4EB] text-stone-700 border-t border-orange-200/80">
@@ -192,18 +185,6 @@ const Footer: React.FC<FooterProps> = ({
         {/* Bottom Copyright & Utility Links */}
         <div className="pt-6 border-t border-orange-200/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-medium text-stone-500">
           <p>{copyrightText}</p>
-
-          <div className="flex flex-wrap items-center gap-5">
-            {bottomLinks.map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                className="hover:text-[#dc2626] transition-colors"
-              >
-                {item.label}
-              </a>
-            ))}
-          </div>
         </div>
       </div>
     </footer>
