@@ -119,7 +119,7 @@ export default function SignUpPage() {
       console.log(data);
       setLoading(false);
       router.refresh();
-      router.push("/");
+      router.push("/signIn");
     } catch (err) {
       console.error(err);
       setError("An unexpected error occurred.");

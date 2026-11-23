@@ -7,6 +7,7 @@ const db = client.db("pizzahub");
 export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
+    autoSignIn:false,
   },
       user: {
        additionalFields: {
