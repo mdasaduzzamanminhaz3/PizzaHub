@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   MapPin,
@@ -24,6 +24,12 @@ interface MenuItemDetailsViewProps {
   isAuthenticated?: boolean;
 }
 
+const getLocalTodayDateString = () => {
+  const now = new Date();
+  const offsetMs = now.getTimezoneOffset() * 60 * 1000;
+  return new Date(now.getTime() - offsetMs).toISOString().split("T")[0];
+};
+
 export default function MenuItemDetailsView({
   item,
   defaultAddress = "",
@@ -31,6 +37,8 @@ export default function MenuItemDetailsView({
   isAuthenticated = false,
 }: MenuItemDetailsViewProps) {
   const router = useRouter();
+
+  const minDeliveryDate = useMemo(() => getLocalTodayDateString(), []);
 
   const galleryImages = [
     item.image,
@@ -64,6 +72,12 @@ export default function MenuItemDetailsView({
 
     if (!deliveryDate || !deliveryAddress) {
       toast.error("Please fill in delivery date and delivery address.");
+      return;
+    }
+
+    const todayStr = getLocalTodayDateString();
+    if (deliveryDate < todayStr) {
+      toast.error("Please select today or a future delivery date.");
       return;
     }
 
@@ -206,7 +220,7 @@ export default function MenuItemDetailsView({
           <div className="pt-4 border-t border-orange-100 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="w-11 h-11 rounded-2xl bg-orange-100 text-[#dc2626] font-extrabold text-sm flex items-center justify-center uppercase">
-                {item.vendorId?.slice(0, 2) || "PH"}
+                {item.vendorName?.slice(0, 2) || "PH"}
               </div>
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-wider text-stone-400">
@@ -214,7 +228,7 @@ export default function MenuItemDetailsView({
                 </p>
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className="text-sm font-extrabold text-stone-900">
-                    {item.vendorId}
+                    {item.vendorName}
                   </span>
                   {item.isFeatured && (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-[11px] font-bold text-amber-700">
@@ -286,6 +300,7 @@ export default function MenuItemDetailsView({
             <input
               id="delivery-date"
               type="date"
+              min={minDeliveryDate}
               value={deliveryDate}
               onChange={(e) => setDeliveryDate(e.target.value)}
               className="w-full h-11 px-3.5 rounded-xl bg-[#FAF7F2] border border-orange-200/70 focus:border-[#dc2626] focus:bg-white focus:outline-none text-sm font-medium text-stone-800 transition-all"

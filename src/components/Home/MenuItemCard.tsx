@@ -64,7 +64,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item }) => {
         <div className="mt-5 pt-4 border-t border-orange-100/80 flex items-center justify-between gap-2 text-xs font-semibold text-stone-600">
           <div className="inline-flex items-center gap-1.5 truncate">
             <Store className="w-3.5 h-3.5 text-orange-500 shrink-0" />
-            <span className="truncate">{item.vendorId}</span>
+            <span className="truncate">{item.vendorName}</span>
           </div>
 
           <div className="inline-flex items-center gap-1 text-stone-400 shrink-0">

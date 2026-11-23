@@ -11,6 +11,7 @@ import type {
 } from '@/types/home/footer.types';
 import Image from 'next/image';
 import { FaFacebook, FaInstagram, FaXTwitter } from 'react-icons/fa6';
+import Link from 'next/link';
 
 const defaultSocials: FooterSocialItem[] = [
   {
@@ -75,7 +76,7 @@ const Footer: React.FC<FooterProps> = ({
         >
           {/* Column 1: Brand & Socials */}
           <div className="lg:col-span-4 space-y-4">
-            <a href="#home" className="inline-flex items-center gap-2.5 group">
+            <Link href="/" className="inline-flex items-center gap-2.5 group">
               <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#dc2626] to-[#f97316] flex items-center justify-center shadow-sm shadow-red-500/20 group-hover:scale-105 group-hover:-rotate-6 transition-transform duration-200">
                 <Image
                   src="/PizzaHub.png"
@@ -88,7 +89,7 @@ const Footer: React.FC<FooterProps> = ({
                 {brandName}
                 <span className="text-[#dc2626]">{brandHighlight}</span>
               </span>
-            </a>
+            </Link>
 
             <p className="text-sm text-stone-600 leading-relaxed max-w-xs">
               {tagline}
@@ -117,13 +118,13 @@ const Footer: React.FC<FooterProps> = ({
             <ul className="space-y-2.5 text-sm font-medium">
               {exploreLinks.map((link) => (
                 <li key={link.label}>
-                  <a
+                  <Link
                     href={link.href}
                     className="inline-flex items-center gap-1 text-stone-600 hover:text-[#dc2626] transition-colors group"
                   >
                     <span>{link.label}</span>
                     <ArrowUpRight className="w-3.5 h-3.5 opacity-0 -translate-x-0.5 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -137,13 +138,13 @@ const Footer: React.FC<FooterProps> = ({
             <ul className="space-y-2.5 text-sm font-medium">
               {companyLinks.map((link) => (
                 <li key={link.label}>
-                  <a
+                  <Link
                     href={link.href}
                     className="inline-flex items-center gap-1 text-stone-600 hover:text-[#dc2626] transition-colors group"
                   >
                     <span>{link.label}</span>
                     <ArrowUpRight className="w-3.5 h-3.5 opacity-0 -translate-x-0.5 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
