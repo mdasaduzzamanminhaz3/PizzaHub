@@ -5,12 +5,17 @@ import { redirect } from "next/navigation";
 import { getUserById } from "../api/users";
 
 
-export const getSession = async()=> {
+export const getSession = async () => {
+  try {
     const session = await auth.api.getSession({
-        headers:await headers()
-    })
-    return session
-}
+      headers: await headers(),
+    });
+    return session;
+  } catch (error) {
+    console.error("getSession failed:", error);
+    return null;
+  }
+};
 
 export const getToken = async()=> {
     const session = await getSession();
